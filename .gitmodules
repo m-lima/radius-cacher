@@ -1,0 +1,6 @@
+[submodule "lib/mfl"]
+	path = lib/mfl
+	url = https://github.com/m-lima/mfl
+[submodule "lib/fmt"]
+	path = lib/fmt
+	url = https://github.com/fmtlib/fmt

@@ -1,0 +1,113 @@
+cmake_minimum_required(VERSION 3.2)
+
+project("RadiusCacher" CXX)
+
+##------------------------------------------------------------------------------
+## Initialization
+##
+
+# Enable tests
+enable_testing()
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+
+# Verboseness
+#SET(CMAKE_SHARED_LINKER_FLAGS "-v")
+#SET(CMAKE_MODULE_LINKER_FLAGS "-v")
+#SET(CMAKE_EXE_LINKER_FLAGS "-v")
+##SET(GCC_LINK_FLAGS "-v")
+#add_definitions("-DVERBOSE")
+
+# Current state
+if (WIN32)
+  message(STATUS "WIN32")
+endif ()
+if (MSVC)
+  message(STATUS "MSVC")
+endif ()
+if (APPLE)
+  message(STATUS "APPLE")
+endif ()
+
+message(STATUS "Using C: " ${CMAKE_C_COMPILER_ID})
+message(STATUS "Using CXX: " ${CMAKE_CXX_COMPILER_ID})
+
+# Set high warning levels
+if (MSVC)
+  if (CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
+    string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  else ()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+  endif ()
+else ()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wno-long-long -pedantic")
+endif ()
+
+# Make $HOME compatible with windows
+STRING(REGEX REPLACE "\\\\" "/" ENV_HOME_DIR "$ENV{HOME}")
+
+# Add custom modules
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/findcmake")
+
+# Set base directories
+set(CPP_SOURCE_DIR "src")
+set(LIB_DIR ${CMAKE_SOURCE_DIR}/lib)
+
+##------------------------------------------------------------------------------
+## Dependencies
+##
+
+# MFL
+add_subdirectory("${LIB_DIR}/mfl")
+list(APPEND INCLUDE_DIRS ${MFL_INCLUDE_DIR})
+
+# FMT
+add_subdirectory("${LIB_DIR}/fmt")
+list(APPEND INCLUDE_DIRS "${LIB_DIR}/fmt")
+list(APPEND LIBRARIES fmt::fmt-header-only)
+
+# Threads
+find_package(Threads)
+list(APPEND LIBRARIES "${CMAKE_THREAD_LIBS_INIT}")
+
+# Boost
+include(${LIB_DIR}/boost/boost.cmake)
+list(APPEND INCLUDE_DIRS $BOOST_INCLUDE_DIR)
+list(APPEND LIBRARIES boost::system)
+list(APPEND LIBRARIES boost::filesystem)
+list(APPEND LIBRARIES boost::thread)
+
+# LibMemcached
+#include(${LIB_DIR}/libmemcached/libmemcached.cmake)
+
+#find_package(LibMemcached REQUIRED)
+#list(APPEND INCLUDE_DIRS ${LIBMEMCACHED_LIBRARY})
+#list(APPEND LIBRARIES ${LIBMEMCACHED_INCLUDE_DIR})
+
+##------------------------------------------------------------------------------
+## Sources
+##
+
+list(APPEND SOURCES
+    ${CPP_SOURCE_DIR}/main.cpp
+    ${CPP_SOURCE_DIR}/server.cpp
+  )
+
+list(APPEND HEADER
+    ${CPP_SOURCE_DIR}/server.hpp
+    )
+
+##------------------------------------------------------------------------------
+## Targets
+##
+
+add_executable(radius-cacher ${SOURCES} ${HEADERS})
+
+# Link with FIND_PACKAGE
+target_link_libraries(radius-cacher PRIVATE ${LIBRARIES})
+
+# Add manual includes
+target_include_directories(radius-cacher PRIVATE ${INCLUDE_DIRS})
