@@ -2,9 +2,6 @@
 // Created by Marcelo Lima on 8/6/18.
 //
 
-#ifndef RADIUSCACHER_GIST_HPP
-#define RADIUSCACHER_GIST_HPP
-
 #include <array>
 #include <boost/asio.hpp>
 #include <iostream>
@@ -117,5 +114,3 @@ main(int argc, char* argv[])
   thread4.join();
   return 0;
 }
-
-#endif //RADIUSCACHER_GIST_HPP

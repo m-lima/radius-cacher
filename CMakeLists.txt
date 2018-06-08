@@ -78,7 +78,6 @@ include(${LIB_DIR}/boost/boost.cmake)
 list(APPEND INCLUDE_DIRS $BOOST_INCLUDE_DIR)
 list(APPEND LIBRARIES boost::system)
 list(APPEND LIBRARIES boost::filesystem)
-list(APPEND LIBRARIES boost::thread)
 
 # LibMemcached
 #include(${LIB_DIR}/libmemcached/libmemcached.cmake)
@@ -105,9 +104,12 @@ list(APPEND HEADER
 ##
 
 add_executable(radius-cacher ${SOURCES} ${HEADERS})
+add_executable(gist ${CPP_SOURCE_DIR}/gist.cpp)
 
 # Link with FIND_PACKAGE
 target_link_libraries(radius-cacher PRIVATE ${LIBRARIES})
+target_link_libraries(gist PRIVATE ${LIBRARIES})
 
 # Add manual includes
 target_include_directories(radius-cacher PRIVATE ${INCLUDE_DIRS})
+target_include_directories(gist PRIVATE ${INCLUDE_DIRS})

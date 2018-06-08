@@ -35,7 +35,7 @@ int main(int argc, char * argv[]) {
   }
 
   unsigned short port = 1813;
-  unsigned short threadCount = 8;
+  unsigned short threadCount = 4;
 
   try {
     auto aPort = mfl::args::extractOption(argv, argv + argc, "-p");
@@ -66,51 +66,18 @@ int main(int argc, char * argv[]) {
   boost::asio::io_service ioService;
 
   Server server{ioService, port};
+  ioService.run();
 
-  std::vector<std::thread> threadPool;
-  threadPool.reserve(threadCount);
-
-  for(unsigned short i = 0; i < threadCount; ++i) {
-    threadPool[i] = std::thread{[&ioService](){ ioService.run(); }};
-  }
-
-  for(unsigned short i = 0; i < threadCount; ++i) {
-    threadPool[i].join();
-  }
+//  std::vector<std::thread> threadPool;
+//  threadPool.reserve(threadCount);
+//
+//  for(unsigned short i = 0; i < threadCount; ++i) {
+//    threadPool[i] = std::thread{[&ioService](){ ioService.run(); }};
+//  }
+//
+//  for(unsigned short i = 0; i < threadCount; ++i) {
+//    threadPool[i].join();
+//  }
 
   return 0;
 }
-
-//std::string make_daytime_string()
-//{
-//  time_t now = time(0);
-//  return ctime(&now);
-//}
-//
-//int main()
-//{
-//  try
-//  {
-//    boost::asio::io_service io_service;
-//
-//    boost_ip::udp::acceptor acceptor(io_service,
-//                                            boost_ip::udp::endpoint(boost_ip::udp::v4(), 1813));
-//
-//    for (;;)
-//    {
-//      boost::asio::ip::udp::socket socket(io_service);
-//      acceptor.accept(socket);
-//
-//      std::string message = make_daytime_string();
-//
-//      boost::system::error_code ignored_error;
-//      boost::asio::write(socket, boost::asio::buffer(message), ignored_error);
-//    }
-//  }
-//  catch (std::exception& e)
-//  {
-//    mfl::out::println(stderr, "{}", e.what());
-//  }
-//
-//  return 0;
-//}
