@@ -10,8 +10,10 @@
 
 template <typename B>
 struct Callback {
-  B mBuffer;
   boost::asio::ip::udp::endpoint mEndpoint;
+  B mBuffer;
+
+  unsigned short callbackId;
 
   template <typename C>
   auto operator()(const boost::system::error_code & errorCode,
@@ -26,7 +28,8 @@ struct Callback {
         bufferBegin,
         bufferBegin +
             std::min(byteCount,
-                     static_cast<std::size_t>(std::max(0L, std::distance(bufferBegin, bufferEnd))))
+                     static_cast<std::size_t>(std::max(0L, std::distance(bufferBegin, bufferEnd)))),
+        callbackId
     );
   }
 
@@ -34,9 +37,11 @@ struct Callback {
 
 class Server {
 public:
-  static constexpr auto BUFFER_SIZE = 4096;
-  using Buffer = std::array<char, BUFFER_SIZE>;
-  using CallbackList = std::array<Callback<Buffer>, 3>;
+  static constexpr auto BUFFER_SIZE = 1024 * 8;
+  static constexpr unsigned short CALLBACK_COUNT = 10;
+
+  using Buffer = std::array<std::uint8_t, BUFFER_SIZE>;
+  using CallbackList = std::array<Callback<Buffer>, CALLBACK_COUNT>;
 
   Server(boost::asio::io_service & ioService, unsigned short port);
 

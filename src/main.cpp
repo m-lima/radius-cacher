@@ -15,8 +15,6 @@
 
 #include "server.hpp"
 
-#include "dummy_server.hpp"
-
 void printUsage(char * appPath, std::FILE * file = stdout) {
   auto appName = boost::filesystem::path{appPath}.stem().string();
 
@@ -37,7 +35,7 @@ int main(int argc, char * argv[]) {
   }
 
   unsigned short port = 1813;
-  unsigned short threadCount = 4;
+  unsigned short threadCount = 8;
 
   try {
     auto aPort = mfl::args::extractOption(argv, argv + argc, "-p");
@@ -67,21 +65,26 @@ int main(int argc, char * argv[]) {
 
   boost::asio::io_service ioService;
 
-//  Server server{ioService, port};
-  DummyServer{ioService, port};
-  
-  ioService.run();
+  Server server{ioService, port};
+//   DummyServer{ioService, port};
 
-//  std::vector<std::thread> threadPool;
-//  threadPool.reserve(threadCount);
-//
-//  for(unsigned short i = 0; i < threadCount; ++i) {
-//    threadPool[i] = std::thread{[&ioService](){ ioService.run(); }};
-//  }
-//
-//  for(unsigned short i = 0; i < threadCount; ++i) {
-//    threadPool[i].join();
-//  }
+  if (threadCount == 1) {
+    mfl::out::println("Listening on UDP {:d} on a single thread", port);
+    ioService.run();
+  } else {
+    std::vector<std::thread> threadPool;
+    threadPool.reserve(threadCount);
+
+    for(unsigned short i = 0; i < threadCount; ++i) {
+      threadPool[i] = std::thread{[&ioService](){ ioService.run(); }};
+    }
+
+    mfl::out::println("Listening on UDP {:d} on {:d} threads", port, threadCount);
+
+    for(unsigned short i = 0; i < threadCount; ++i) {
+      threadPool[i].join();
+    }
+  }
 
   return 0;
 }

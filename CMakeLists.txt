@@ -80,11 +80,15 @@ list(APPEND LIBRARIES boost::system)
 list(APPEND LIBRARIES boost::filesystem)
 
 # LibMemcached
-#include(${LIB_DIR}/libmemcached/libmemcached.cmake)
-
-#find_package(LibMemcached REQUIRED)
-#list(APPEND INCLUDE_DIRS ${LIBMEMCACHED_LIBRARY})
-#list(APPEND LIBRARIES ${LIBMEMCACHED_INCLUDE_DIR})
+find_package(LibMemcached REQUIRED)
+if (NOT LIBMEMCACHED_FOUND)
+  message(STATUS "Could not find libmemcached package. Adding external project")
+  include(${LIB_DIR}/libmemcached/libmemcached.cmake)
+else ()
+  message(STATUS "Found libmemcached package. Not adding external project")
+  list(APPEND INCLUDE_DIRS ${LIBMEMCACHED_INCLUDE_DIR})
+  list(APPEND LIBRARIES ${LIBMEMCACHED_LIBRARY})
+endif (NOT LIBMEMCACHED_FOUND)
 
 ##------------------------------------------------------------------------------
 ## Sources
@@ -93,11 +97,13 @@ list(APPEND LIBRARIES boost::filesystem)
 list(APPEND SOURCES
     ${CPP_SOURCE_DIR}/main.cpp
     ${CPP_SOURCE_DIR}/server.cpp
+    ${CPP_SOURCE_DIR}/cacher.cpp
   )
 
-list(APPEND HEADER
+list(APPEND HEADERS
     ${CPP_SOURCE_DIR}/server.hpp
-    ${CPP_SOURCE_DIR}/dummy_server.hpp
+    ${CPP_SOURCE_DIR}/cacher.hpp
+    ${CPP_SOURCE_DIR}/radius.hpp
     )
 
 ##------------------------------------------------------------------------------
@@ -105,12 +111,9 @@ list(APPEND HEADER
 ##
 
 add_executable(radius-cacher ${SOURCES} ${HEADERS})
-add_executable(gist ${CPP_SOURCE_DIR}/gist.cpp)
 
 # Link with FIND_PACKAGE
 target_link_libraries(radius-cacher PRIVATE ${LIBRARIES})
-target_link_libraries(gist PRIVATE ${LIBRARIES})
 
 # Add manual includes
 target_include_directories(radius-cacher PRIVATE ${INCLUDE_DIRS})
-target_include_directories(gist PRIVATE ${INCLUDE_DIRS})
