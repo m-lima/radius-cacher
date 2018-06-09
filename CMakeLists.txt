@@ -97,6 +97,7 @@ list(APPEND SOURCES
 
 list(APPEND HEADER
     ${CPP_SOURCE_DIR}/server.hpp
+    ${CPP_SOURCE_DIR}/dummy_server.hpp
     )
 
 ##------------------------------------------------------------------------------

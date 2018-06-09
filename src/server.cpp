@@ -49,7 +49,7 @@ namespace {
 }
 
 Server::Server(boost::asio::io_service & ioService, unsigned short port)
-  : mSocket{ioService, boostUdp::endpoint{boostUdp::v4(), port}} {
-    receive(mSocket, mCallbackList.begin(), mCallbackList.begin(), mCallbackList.end());
+    : mSocket{ioService, boostUdp::endpoint{boostUdp::v4(), port}} {
+  receive(mSocket, mCallbackList.begin(), mCallbackList.begin(), mCallbackList.end());
 }
 

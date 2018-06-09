@@ -15,6 +15,8 @@
 
 #include "server.hpp"
 
+#include "dummy_server.hpp"
+
 void printUsage(char * appPath, std::FILE * file = stdout) {
   auto appName = boost::filesystem::path{appPath}.stem().string();
 
@@ -65,7 +67,9 @@ int main(int argc, char * argv[]) {
 
   boost::asio::io_service ioService;
 
-  Server server{ioService, port};
+//  Server server{ioService, port};
+  DummyServer{ioService, port};
+  
   ioService.run();
 
 //  std::vector<std::thread> threadPool;
