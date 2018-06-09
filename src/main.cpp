@@ -66,7 +66,6 @@ int main(int argc, char * argv[]) {
   boost::asio::io_service ioService;
 
   Server server{ioService, port};
-//   DummyServer{ioService, port};
 
   if (threadCount == 1) {
     mfl::out::println("Listening on UDP {:d} on a single thread", port);
