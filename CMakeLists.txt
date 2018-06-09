@@ -104,6 +104,7 @@ list(APPEND HEADERS
     ${CPP_SOURCE_DIR}/server.hpp
     ${CPP_SOURCE_DIR}/cacher.hpp
     ${CPP_SOURCE_DIR}/radius.hpp
+    ${CPP_SOURCE_DIR}/logger.hpp
     )
 
 ##------------------------------------------------------------------------------
@@ -111,6 +112,11 @@ list(APPEND HEADERS
 ##
 
 add_executable(radius-cacher ${SOURCES} ${HEADERS})
+
+# Add make time constants
+if (DEFINED VERBOSE_LEVEL)
+  add_definitions(-DVERBOSE_LEVEL=${VERBOSE_LEVEL})
+endif()
 
 # Link with FIND_PACKAGE
 target_link_libraries(radius-cacher PRIVATE ${LIBRARIES})

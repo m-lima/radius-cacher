@@ -8,12 +8,15 @@
 
 #include <boost/asio.hpp>
 
+/**
+ * Callback wrapper to execute once the buffer is ready
+ *
+ * @tparam B The buffer type
+ */
 template<typename B>
 struct Callback {
   boost::asio::ip::udp::endpoint mEndpoint;
   B mBuffer;
-
-  unsigned short callbackId;
 
   template<typename C>
   auto operator()(const boost::system::error_code & errorCode,
@@ -27,13 +30,19 @@ struct Callback {
         byteCount,
         bufferBegin,
         bufferBegin +
-        std::min(byteCount, static_cast<std::size_t>(std::max(0L, std::distance(bufferBegin, bufferEnd)))),
-        callbackId
+        std::min(byteCount, static_cast<std::size_t>(std::max(0L, std::distance(bufferBegin, bufferEnd))))
     );
   }
 
 };
 
+/**
+ * Main server to handle UDP connections
+ *
+ * Works with 10 rolling callback handlers shared across all threads
+ * Each callback handler has 8KB buffer for the packet. This is currently not customizable to
+ * harness std::array compile time stack allocation
+ */
 class Server {
 public:
   static constexpr auto BUFFER_SIZE = 1024 * 8;

@@ -14,14 +14,21 @@
 #include <boost/filesystem.hpp>
 
 #include "server.hpp"
+#include "config.hpp"
 
+/**
+ * Prints the usage for the application
+ *
+ * @param appPath the raw argv[0] value for the executable call
+ * @param file which file to print to
+ */
 void printUsage(char * appPath, std::FILE * file = stdout) {
   auto appName = boost::filesystem::path{appPath}.stem().string();
 
   mfl::out::println(file, "Usage for {:s}:", appName);
-  mfl::out::println(file, "{:s} [-p PORT] [-t THREAD_COUNT]", appName);
-  mfl::out::println(file, "  {:<15s}{:s}", "PORT", "The port to listen (default: 1813)");
-  mfl::out::println(file, "  {:<15s}{:s}", "THREAD_COUNT", "Number of threads to use (default: 8)");
+  mfl::out::println(file, "{:s} [-s SERVER_CONFIG] [-m MEMCACHED_CONFIG]", appName);
+  mfl::out::println(file, "  {:<15s}{:s}", "SERVER_CONFIG", "Server configuration file (default: server.conf)");
+  mfl::out::println(file, "  {:<15s}{:s}", "MEMCACHED_CONFIG", "Memcached configuration file (default: memcached.conf)");
   mfl::out::println(file, "");
 
   mfl::out::println(file, "Usage for help:");
@@ -34,26 +41,18 @@ int main(int argc, char * argv[]) {
     return 0;
   }
 
-  unsigned short port = 1813;
-  unsigned short threadCount = 8;
+  auto serverConfig = std::string{"server.conf"};
+  auto memcachedConfig = std::string{"memcached.conf"};
 
   try {
-    auto aPort = mfl::args::extractOption(argv, argv + argc, "-p");
-    if (aPort) {
-      int tPort = std::atoi(aPort);
-      if (tPort < 1 || tPort > 65535) {
-        throw std::runtime_error("port should be between 1 and 65535");
-      }
-      port = static_cast<unsigned short>(tPort);
+    auto aServerConfig = mfl::args::extractOption(argv, argv + argc, "-s");
+    if (aServerConfig) {
+      serverConfig = std::string{aServerConfig};
     }
-
-    auto aThreadCount = mfl::args::extractOption(argv, argv + argc, "-t");
-    if (aThreadCount) {
-      int tThreadCount = std::atoi(aThreadCount);
-      if (tThreadCount < 1 || tThreadCount > 65535) {
-        throw std::runtime_error("thread count should be between 1 and 65535");
-      }
-      threadCount = static_cast<unsigned short>(tThreadCount);
+    
+    auto aMemcachedConfig = mfl::args::extractOption(argv, argv + argc, "-m");
+    if (aMemcachedConfig) {
+      memcachedConfig = std::string{aMemcachedConfig};
     }
 
   } catch (std::exception & ex) {
@@ -62,25 +61,27 @@ int main(int argc, char * argv[]) {
     printUsage(argv[0], stderr);
     return -1;
   }
-
+  
+  Config config;
+  
   boost::asio::io_service ioService;
 
-  Server server{ioService, port};
+  Server server{ioService, config.port};
 
-  if (threadCount == 1) {
-    mfl::out::println("Listening on UDP {:d} on a single thread", port);
+  if (config.threadPoolSize == 1) {
+    mfl::out::println("Listening on UDP {:d} on a single thread", config.port);
     ioService.run();
   } else {
     std::vector<std::thread> threadPool;
-    threadPool.reserve(threadCount);
+    threadPool.reserve(config.threadPoolSize);
 
-    for (unsigned short i = 0; i < threadCount; ++i) {
+    for (unsigned short i = 0; i < config.threadPoolSize; ++i) {
       threadPool[i] = std::thread{[&ioService]() { ioService.run(); }};
     }
 
-    mfl::out::println("Listening on UDP {:d} on {:d} threads", port, threadCount);
+    mfl::out::println("Listening on UDP {:d} on {:d} threads", config.port, config.threadPoolSize);
 
-    for (unsigned short i = 0; i < threadCount; ++i) {
+    for (unsigned short i = 0; i < config.threadPoolSize; ++i) {
       threadPool[i].join();
     }
   }

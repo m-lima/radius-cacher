@@ -12,15 +12,40 @@
 /**
  * File based on Radius Accounting specification RFC-2866
  * Minimized for current use-case, however
+ *
+ * All Radius payloads shall come in a single UDP packet on port 1813 for accounting
  */
 namespace radius {
 
+  /**
+   * Supported accounting requests
+   */
   enum StatusType {
     START = 1,
     STOP = 2,
     UPDATE = 3
   };
 
+  /**
+   * The four possible value types for AVP as defined in the spec
+   */
+  enum ValueType {
+    STRING,
+    ADDRESS,
+    UNSIGNED_INT,
+    TIME,
+  };
+
+  /**
+   * Header for the Radius packet
+   *
+   * Code: The type of packet: REQUEST / RESPONSE
+   * Id: An ID to track replies
+   * Length: Total length of the packet (including this header)
+   * Authenticator: An MD5 of (Code+ID+Length+(16 * 0x00)+Attributes+Secret)
+   *                Basically, the full packet is hashed toghether with the secret,
+   *                but with 16 octets of zeros in place of the actual Authenticator
+   */
   class Header {
 #pragma pack(push, 1)
     struct HeaderRaw {
@@ -40,11 +65,17 @@ namespace radius {
   public:
     static constexpr auto SIZE = sizeof(HeaderRaw);
 
+    /**
+     * Possible codes possible according to the spec
+     */
     enum Code {
       REQUEST = 4,
       RESPONSE = 5
     };
 
+    /**
+     * 128-bit struct (16 octets) to hold the authenticator hash
+     */
     struct Authenticator {
       std::uint64_t hi;
       std::uint64_t lo;
@@ -55,6 +86,16 @@ namespace radius {
     const std::uint16_t length;
     const Authenticator authenticator;
 
+    /**
+     * Does a copy to stack from the given buffer
+     * Uses reinterpret_cast on the buffer before copying
+     *
+     * @tparam I the itarator for the buffer
+     * @param begin the start of the buffer
+     * @param end the end of the buffer
+     * @return a parsed Radius packet header
+     * @throws runtime_error buffer overflow
+     */
     template<typename I>
     static auto extract(I begin, I end) {
       if (std::distance(begin, end) < static_cast<int>(sizeof(HeaderRaw))) {
@@ -68,6 +109,12 @@ namespace radius {
 
   };
 
+  /**
+   * An AVP for the Radius packet
+   *
+   * Type: The type of packet; e.g. 40 = Acct-Status-Type
+   * Length: Total length of the packet (including this preamble)
+   */
   class Attribute {
 #pragma pack(push, 1)
     struct AttributeRaw {
@@ -92,6 +139,16 @@ namespace radius {
     const std::uint8_t type;
     const std::uint8_t length;
 
+    /**
+     * Does a copy to stack from the given buffer
+     * Uses reinterpret_cast on the buffer before copying
+     *
+     * @tparam I the itarator for the buffer
+     * @param begin the start of the buffer
+     * @param end the end of the buffer
+     * @return a parsed AVP header
+     * @throws runtime_error buffer overflow
+     */
     template<typename I>
     static auto extract(I begin, I end) {
       if (std::distance(begin, end) < static_cast<int>(sizeof(AttributeRaw))) {
@@ -104,8 +161,9 @@ namespace radius {
     }
   };
 
-  struct ValueReader;
-
+  /**
+   * A wrapper around IPv4 octets that exports a string format
+   */
   class IPv4 {
     friend struct ValueReader;
 #pragma pack(push, 1)
@@ -128,6 +186,16 @@ namespace radius {
     const std::string ip;
     std::array<std::uint8_t, 4> octets;
 
+    /**
+     * Does a copy to stack from the given buffer
+     * Uses reinterpret_cast on the buffer before copying
+     *
+     * @tparam I the itarator for the buffer
+     * @param begin the start of the buffer
+     * @param end the end of the buffer
+     * @return a parsed IPv4 value
+     * @throws runtime_error buffer overflow
+     */
     template<typename I>
     static auto extract(I begin, I end) {
       if (std::distance(begin, end) < static_cast<int>(sizeof(IPv4Raw))) {
@@ -139,9 +207,23 @@ namespace radius {
     }
   };
 
-  // The only types for attributes allowed in the spec
+  /**
+   * A reader for all attributes types allowed in the spec
+   */
   struct ValueReader {
 
+    /**
+     * Parses and extracts a string from the buffer
+     *
+     * @tparam I the itarator for the buffer
+     * @param begin the start of the buffer
+     * @param end the end of the buffer
+     * @param stringEnd the end of the string
+     * @return a parsed string
+     * @throws runtime_error buffer overflow
+     * @throws runtime_error empty string
+     * @throws runtime_error string larger than 253 bytes
+     */
     template<typename I>
     static auto getString(I begin, I end, I stringEnd) {
       if (stringEnd > end) {
@@ -161,6 +243,15 @@ namespace radius {
       return std::string{begin, stringEnd};
     }
 
+    /**
+     * Parses and extracts an IPv4 object from the buffer
+     *
+     * @tparam I the itarator for the buffer
+     * @param begin the start of the buffer
+     * @param end the end of the buffer
+     * @return a parsed IPv4 value
+     * @throws runtime_error buffer overflow
+     */
     template<typename I>
     static auto getAddress(I begin, I end) {
       if (std::distance(begin, end) < static_cast<int>(sizeof(IPv4::IPv4Raw))) {
@@ -170,6 +261,15 @@ namespace radius {
       return IPv4::extract(begin, end);
     }
 
+    /**
+     * Parses and extracts a 32bit unsigned integer from the buffer
+     *
+     * @tparam I the itarator for the buffer
+     * @param begin the start of the buffer
+     * @param end the end of the buffer
+     * @return a parsed 32bit unsigned integer value
+     * @throws runtime_error buffer overflow
+     */
     template<typename I>
     static std::uint32_t getUnsignedInt(I begin, I end) {
       if (std::distance(begin, end) < static_cast<int>(sizeof(std::uint32_t))) {
@@ -182,6 +282,15 @@ namespace radius {
              | (begin[3]);
     }
 
+    /**
+     * Parses and extracts the time based on the number of seconds since 00:00:00 UTC, Jan 1, 1970
+     *
+     * @tparam I the itarator for the buffer
+     * @param begin the start of the buffer
+     * @param end the end of the buffer
+     * @return a parsed time_t object
+     * @throws runtime_error buffer overflow
+     */
     template<typename I>
     static auto getTime(I begin, I end) {
       return std::time_t{getUnsignedInt(begin, end)};

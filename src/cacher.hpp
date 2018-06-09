@@ -5,6 +5,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include <libmemcached/memcached.hpp>
 
@@ -14,7 +15,7 @@ public:
       : memcache{config} {}
 
   inline void push(const std::string & key, const std::string & value) {
-//    memcache.add(key, value);
+    memcache.add(key, std::vector<char>{value.cbegin(), value.cend()});
   }
 
   inline void remove(const std::string & key) {
