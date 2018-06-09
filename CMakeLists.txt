@@ -75,7 +75,7 @@ list(APPEND LIBRARIES "${CMAKE_THREAD_LIBS_INIT}")
 
 # Boost
 include(${LIB_DIR}/boost/boost.cmake)
-list(APPEND INCLUDE_DIRS $BOOST_INCLUDE_DIR)
+list(APPEND INCLUDE_DIRS ${BOOST_INCLUDE_DIR})
 list(APPEND LIBRARIES boost::system)
 list(APPEND LIBRARIES boost::filesystem)
 
