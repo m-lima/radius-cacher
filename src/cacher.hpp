@@ -16,6 +16,7 @@ public:
   inline void push(const std::string & key, const std::string & value) {
 //    memcache.add(key, value);
   }
+
   inline void remove(const std::string & key) {
     memcache.remove(key);
   }

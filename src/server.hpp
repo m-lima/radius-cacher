@@ -8,14 +8,14 @@
 
 #include <boost/asio.hpp>
 
-template <typename B>
+template<typename B>
 struct Callback {
   boost::asio::ip::udp::endpoint mEndpoint;
   B mBuffer;
 
   unsigned short callbackId;
 
-  template <typename C>
+  template<typename C>
   auto operator()(const boost::system::error_code & errorCode,
                   std::size_t byteCount,
                   C callback) const {
@@ -27,8 +27,7 @@ struct Callback {
         byteCount,
         bufferBegin,
         bufferBegin +
-            std::min(byteCount,
-                     static_cast<std::size_t>(std::max(0L, std::distance(bufferBegin, bufferEnd)))),
+        std::min(byteCount, static_cast<std::size_t>(std::max(0L, std::distance(bufferBegin, bufferEnd)))),
         callbackId
     );
   }

@@ -74,13 +74,13 @@ int main(int argc, char * argv[]) {
     std::vector<std::thread> threadPool;
     threadPool.reserve(threadCount);
 
-    for(unsigned short i = 0; i < threadCount; ++i) {
-      threadPool[i] = std::thread{[&ioService](){ ioService.run(); }};
+    for (unsigned short i = 0; i < threadCount; ++i) {
+      threadPool[i] = std::thread{[&ioService]() { ioService.run(); }};
     }
 
     mfl::out::println("Listening on UDP {:d} on {:d} threads", port, threadCount);
 
-    for(unsigned short i = 0; i < threadCount; ++i) {
+    for (unsigned short i = 0; i < threadCount; ++i) {
       threadPool[i].join();
     }
   }

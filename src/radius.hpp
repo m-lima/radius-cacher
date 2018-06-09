@@ -142,7 +142,7 @@ namespace radius {
   // The only types for attributes allowed in the spec
   struct ValueReader {
 
-    template <typename I>
+    template<typename I>
     static auto getString(I begin, I end, I stringEnd) {
       if (stringEnd > end) {
         throw std::runtime_error("ValueReader::getString: buffer overflow");
@@ -161,7 +161,7 @@ namespace radius {
       return std::string{begin, stringEnd};
     }
 
-    template <typename I>
+    template<typename I>
     static auto getAddress(I begin, I end) {
       if (std::distance(begin, end) < static_cast<int>(sizeof(IPv4::IPv4Raw))) {
         throw std::runtime_error("ValueReader::getAddress: buffer overflow");
@@ -170,7 +170,7 @@ namespace radius {
       return IPv4::extract(begin, end);
     }
 
-    template <typename I>
+    template<typename I>
     static std::uint32_t getUnsignedInt(I begin, I end) {
       if (std::distance(begin, end) < static_cast<int>(sizeof(std::uint32_t))) {
         throw std::runtime_error("ValueReader::getAddress: buffer overflow");
@@ -182,7 +182,7 @@ namespace radius {
              | (begin[3]);
     }
 
-    template <typename I>
+    template<typename I>
     static auto getTime(I begin, I end) {
       return std::time_t{getUnsignedInt(begin, end)};
     }
