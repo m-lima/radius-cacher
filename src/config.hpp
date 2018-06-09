@@ -10,5 +10,5 @@ struct Config {
   const std::string key = "";
   const std::string value = "";
 
-  Config(){};
+  Config() {};
 };

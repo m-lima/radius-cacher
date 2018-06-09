@@ -96,7 +96,7 @@ namespace radius {
      * @return a parsed Radius packet header
      * @throws runtime_error buffer overflow
      */
-    template<typename I>
+    template <typename I>
     static auto extract(I begin, I end) {
       if (std::distance(begin, end) < static_cast<int>(sizeof(HeaderRaw))) {
         throw std::runtime_error("Header::extract: buffer overflow");
@@ -149,7 +149,7 @@ namespace radius {
      * @return a parsed AVP header
      * @throws runtime_error buffer overflow
      */
-    template<typename I>
+    template <typename I>
     static auto extract(I begin, I end) {
       if (std::distance(begin, end) < static_cast<int>(sizeof(AttributeRaw))) {
         throw std::runtime_error("Attribute::extract: buffer overflow");
@@ -196,7 +196,7 @@ namespace radius {
      * @return a parsed IPv4 value
      * @throws runtime_error buffer overflow
      */
-    template<typename I>
+    template <typename I>
     static auto extract(I begin, I end) {
       if (std::distance(begin, end) < static_cast<int>(sizeof(IPv4Raw))) {
         throw std::runtime_error("IPv4::extract: buffer overflow");
@@ -224,7 +224,7 @@ namespace radius {
      * @throws runtime_error empty string
      * @throws runtime_error string larger than 253 bytes
      */
-    template<typename I>
+    template <typename I>
     static auto getString(I begin, I end, I stringEnd) {
       if (stringEnd > end) {
         throw std::runtime_error("ValueReader::getString: buffer overflow");
@@ -252,7 +252,7 @@ namespace radius {
      * @return a parsed IPv4 value
      * @throws runtime_error buffer overflow
      */
-    template<typename I>
+    template <typename I>
     static auto getAddress(I begin, I end) {
       if (std::distance(begin, end) < static_cast<int>(sizeof(IPv4::IPv4Raw))) {
         throw std::runtime_error("ValueReader::getAddress: buffer overflow");
@@ -270,7 +270,7 @@ namespace radius {
      * @return a parsed 32bit unsigned integer value
      * @throws runtime_error buffer overflow
      */
-    template<typename I>
+    template <typename I>
     static std::uint32_t getUnsignedInt(I begin, I end) {
       if (std::distance(begin, end) < static_cast<int>(sizeof(std::uint32_t))) {
         throw std::runtime_error("ValueReader::getAddress: buffer overflow");
@@ -291,7 +291,7 @@ namespace radius {
      * @return a parsed time_t object
      * @throws runtime_error buffer overflow
      */
-    template<typename I>
+    template <typename I>
     static auto getTime(I begin, I end) {
       return std::time_t{getUnsignedInt(begin, end)};
     }

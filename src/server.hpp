@@ -13,12 +13,12 @@
  *
  * @tparam B The buffer type
  */
-template<typename B>
+template <typename B>
 struct Callback {
   boost::asio::ip::udp::endpoint mEndpoint;
   B mBuffer;
 
-  template<typename C>
+  template <typename C>
   auto operator()(const boost::system::error_code & errorCode,
                   std::size_t byteCount,
                   C callback) const {

@@ -81,8 +81,8 @@ namespace {
 
     // Prepare the cache action and data
     auto action = DO_NOTHING;
-    std::optional < std::string > key;
-    std::optional < std::string > value;
+    std::optional<std::string> key;
+    std::optional<std::string> value;
 
     // Slide through the attributes
     logger::println<logger::DEBUG>("Start attribute iteration");

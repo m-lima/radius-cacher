@@ -28,7 +28,9 @@ void printUsage(char * appPath, std::FILE * file = stdout) {
   mfl::out::println(file, "Usage for {:s}:", appName);
   mfl::out::println(file, "{:s} [-s SERVER_CONFIG] [-m MEMCACHED_CONFIG]", appName);
   mfl::out::println(file, "  {:<15s}{:s}", "SERVER_CONFIG", "Server configuration file (default: server.conf)");
-  mfl::out::println(file, "  {:<15s}{:s}", "MEMCACHED_CONFIG", "Memcached configuration file (default: memcached.conf)");
+  mfl::out::println(file, "  {:<15s}{:s}",
+                    "MEMCACHED_CONFIG",
+                    "Memcached configuration file (default: memcached.conf)");
   mfl::out::println(file, "");
 
   mfl::out::println(file, "Usage for help:");
@@ -49,7 +51,7 @@ int main(int argc, char * argv[]) {
     if (aServerConfig) {
       serverConfig = std::string{aServerConfig};
     }
-    
+
     auto aMemcachedConfig = mfl::args::extractOption(argv, argv + argc, "-m");
     if (aMemcachedConfig) {
       memcachedConfig = std::string{aMemcachedConfig};
@@ -61,9 +63,9 @@ int main(int argc, char * argv[]) {
     printUsage(argv[0], stderr);
     return -1;
   }
-  
+
   Config config;
-  
+
   boost::asio::io_service ioService;
 
   Server server{ioService, config.port};
