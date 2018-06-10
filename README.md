@@ -3,7 +3,7 @@ A thin radius server for caching entries
 
 ## Building
 ### Dependencies
-* C++ compiler
+* C++17 compiler
 * CMake 3.2+
 
 ### Installing dependencies
