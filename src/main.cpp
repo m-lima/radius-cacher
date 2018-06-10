@@ -12,7 +12,6 @@
 #include <mfl/args.hpp>
 
 #include <boost/asio.hpp>
-#include <boost/filesystem.hpp>
 
 #include "server.hpp"
 #include "config.hpp"
@@ -26,10 +25,8 @@
  * @param file which file to print to
  */
 void printUsage(char * appPath, std::FILE * file = stdout) {
-  auto appName = boost::filesystem::path{appPath}.stem().string();
-
-  mfl::out::println(file, "Usage for {:s}:", appName);
-  mfl::out::println(file, "{:s} [-s SERVER_CONFIG] [-m CACHE_CONFIG]", appName);
+  mfl::out::println(file, "Usage for radius-cacher:");
+  mfl::out::println(file, "radius-cacher [-s SERVER_CONFIG] [-m CACHE_CONFIG]");
   mfl::out::println(file, "  {:<15s}{:s}",
                     "SERVER_CONFIG",
                     "Server configuration file (default: server.conf)");
@@ -39,7 +36,7 @@ void printUsage(char * appPath, std::FILE * file = stdout) {
   mfl::out::println(file, "");
 
   mfl::out::println(file, "Usage for help:");
-  mfl::out::println(file, "{:s} -h", appName);
+  mfl::out::println(file, "radius-cacher -h");
 }
 
 int main(int argc, char * argv[]) {
