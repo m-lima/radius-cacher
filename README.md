@@ -22,7 +22,7 @@ $ scoop install cmake
 ```
 
 ### Dependency notes
-To have a faster build time, it is suggested to install boost and libmemcached and avoid downloading and build them at compile-time
+To have a faster build time, it is suggested to install boost and libmemcached and avoid downloading and building them during compilation
 
 ### Compiling
 ```bash
