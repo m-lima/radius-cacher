@@ -108,7 +108,6 @@ endif (NOT LIBMEMCACHED_FOUND)
 list(APPEND SOURCES
     ${CPP_SOURCE_DIR}/main.cpp
     ${CPP_SOURCE_DIR}/server.cpp
-    ${CPP_SOURCE_DIR}/cacher.cpp
   )
 
 list(APPEND HEADERS
@@ -123,6 +122,7 @@ list(APPEND HEADERS
 ##
 
 add_executable(radius-cacher ${SOURCES} ${HEADERS})
+add_executable(cacher ${CPP_SOURCE_DIR}/cacher.cpp)
 
 # Add make time constants
 if (DEFINED VERBOSE_LEVEL)
@@ -131,6 +131,7 @@ endif()
 
 # Link with FIND_PACKAGE
 target_link_libraries(radius-cacher PRIVATE ${LIBRARIES})
+target_link_libraries(cacher PRIVATE ${LIBRARIES})
 
 # Add manual includes
 target_include_directories(radius-cacher PRIVATE ${INCLUDE_DIRS})

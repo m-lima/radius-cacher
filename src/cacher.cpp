@@ -3,3 +3,9 @@
 //
 
 #include "cacher.hpp"
+
+int main() {
+  Cacher cacher{"--SERVER=localhost", 5};
+  cacher.set("yo", "man");
+  return 0;
+}

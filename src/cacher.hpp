@@ -11,17 +11,19 @@
 
 class Cacher {
 public:
-  Cacher(const std::string & config)
-      : memcache{config} {}
+  Cacher(const std::string & config, const time_t ttl)
+      : mMemcache{config},
+        mTTL{ttl} {}
 
-  inline void push(const std::string & key, const std::string & value) {
-    memcache.add(key, std::vector<char>{value.cbegin(), value.cend()});
+  inline void set(const std::string & key, const std::string & value) {
+    mMemcache.set(key, std::vector<char>{value.cbegin(), value.cend()}, mTTL, 0);
   }
 
   inline void remove(const std::string & key) {
-    memcache.remove(key);
+    mMemcache.remove(key);
   }
 
 private:
-  memcache::Memcache memcache;
+  memcache::Memcache mMemcache;
+  time_t mTTL;
 };
