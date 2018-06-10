@@ -115,7 +115,7 @@ namespace config {
 
     std::string host = "localhost";
     unsigned short port = 11211;
-    time_t ttl = 5;
+    time_t ttl = 5400;
     bool noReply = true;
     bool useBinary = true;
 

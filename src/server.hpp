@@ -13,15 +13,6 @@
 #include "config.hpp"
 #include "logger.hpp"
 
-namespace server::listener {
-  template <typename P, typename I>
-  void receive(boost::asio::ip::udp::socket & socket,
-               I callbackCurrent,
-               I callbackBegin,
-               I callbackEnd,
-               std::shared_ptr<P> parser);
-}
-
 /**
  * Callback wrapper to execute once the buffer is ready
  *
@@ -35,12 +26,11 @@ struct Callback {
   template <typename C>
   auto operator()(const boost::system::error_code & errorCode,
                   std::size_t byteCount,
-                  std::shared_ptr<C> callback) const {
+                  C * const callback) const {
     auto bufferBegin = std::cbegin(mBuffer);
     auto bufferEnd = std::cend(mBuffer);
     return (*callback)(
         mEndpoint,
-        errorCode,
         byteCount,
         bufferBegin,
         bufferBegin +
@@ -68,6 +58,55 @@ public:
 
 private:
 
+  /**
+   * A rolling receiver of packets that offloads to the callback wrapper rolling list
+   *
+   * @tparam P the packet parser type
+   * @tparam I the iterator type for the callback wrapper rolling list
+   * @param socket the socket for the connection
+   * @param callbackCurrent the current callback wrapper
+   * @param callbackBegin the first callback wrapper in the rolling list
+   * @param callbackEnd the end-of-list for the callback wrapper rolling list
+   * @param parser the packet parser
+   */
+  template <typename P, typename I>
+  static void receive(boost::asio::ip::udp::socket & socket,
+                      I callbackCurrent,
+                      I callbackBegin,
+                      I callbackEnd,
+                      P * const parser) {
+    logger::println<logger::DEBUG>("Server::Listener::receive: ready to receive");
+    try {
+      socket.async_receive_from(
+          boost::asio::buffer(callbackCurrent->mBuffer, Server::BUFFER_SIZE),
+          callbackCurrent->mEndpoint,
+          [&socket, callbackCurrent, callbackBegin, callbackEnd, parser]
+              (const boost::system::error_code & errorCode, std::size_t bytesReceived) {
+            logger::println<logger::DEBUG>("Server::Listener::receive::lambda: packet received");
+            auto callbackNext = callbackCurrent + 1;
+
+            // Infinite loop for listening
+            receive(socket,
+                    (callbackNext != callbackEnd)
+                    ? callbackNext
+                    : callbackBegin,
+                    callbackBegin,
+                    callbackEnd,
+                    parser);
+
+            (*callbackCurrent)(errorCode,
+                               bytesReceived,
+                               parser);
+//                               parser<decltype(callbackCurrent->mEndpoint), Server::Buffer::const_iterator>);
+          }
+      );
+    } catch (std::exception & e) {
+      logger::errPrintln<logger::WARNING>("Server::Listener::receive: "
+                                          "exception caught when executing receive: {:s}",
+                                          e.what());
+    }
+  }
+
   class Listener {
   public:
 
@@ -80,9 +119,9 @@ private:
      * @param parser the packet parser
      */
     template <typename P>
-    Listener(boost::asio::io_service & ioService, unsigned short port, std::shared_ptr<P> parser)
+    Listener(boost::asio::io_service & ioService, unsigned short port, P * const parser)
         : mSocket{ioService, boostUdp::endpoint{boostUdp::v4(), port}} {
-      server::listener::receive(mSocket, mCallbackList.begin(), mCallbackList.begin(), mCallbackList.end(), parser);
+      receive(mSocket, mCallbackList.begin(), mCallbackList.begin(), mCallbackList.end(), parser);
     }
 
     boostUdp::socket mSocket;
@@ -100,25 +139,26 @@ public:
    * @param parser the packet parser
    */
   template <typename P>
-  void run(std::shared_ptr<P> parser) {
+  void run(P * const parser) {
     boost::asio::io_service ioService;
 
     Listener listener{ioService, mConfig.port, parser};
+    logger::println<logger::DEBUG>("Server::run: listener built");
 
     if (mConfig.threadPoolSize == 1) {
-      logger::println<logger::LOG>("Server::run: listening on UDP {:d} on a single thread", mConfig.port);
+      logger::println<logger::LOG>("Server::run: launching listener on UDP {:d} on a single thread", mConfig.port);
       ioService.run();
     } else {
       std::vector<std::thread> threadPool;
       threadPool.reserve(mConfig.threadPoolSize);
 
-      for (unsigned short i = 0; i < mConfig.threadPoolSize; ++i) {
-        threadPool[i] = std::thread{[&ioService]() { ioService.run(); }};
-      }
-
-      logger::println<logger::LOG>("Server::run: listening on UDP {:d} on {:d} threads",
+      logger::println<logger::LOG>("Server::run: launching listeners on UDP {:d} on {:d} threads",
                                    mConfig.port,
                                    mConfig.threadPoolSize);
+
+      for (unsigned short i = 0; i < mConfig.threadPoolSize; ++i) {
+        threadPool.emplace_back([&ioService]() { ioService.run(); });
+      }
 
       for (auto & t : threadPool) {
         t.join();
@@ -145,52 +185,3 @@ public:
 private:
   const config::Server mConfig;
 };
-
-namespace server::listener {
-/**
- * A rolling receiver of packets that offloads to the callback wrapper rolling list
- *
- * @tparam P the packet parser type
- * @tparam I the iterator type for the callback wrapper rolling list
- * @param socket the socket for the connection
- * @param callbackCurrent the current callback wrapper
- * @param callbackBegin the first callback wrapper in the rolling list
- * @param callbackEnd the end-of-list for the callback wrapper rolling list
- * @param parser the packet parser
- */
-  template <typename P, typename I>
-  void receive(boost::asio::ip::udp::socket & socket,
-               I callbackCurrent,
-               I callbackBegin,
-               I callbackEnd,
-               std::shared_ptr<P> parser) {
-    try {
-      socket.async_receive_from(
-          boost::asio::buffer(callbackCurrent->mBuffer, Server::BUFFER_SIZE),
-          callbackCurrent->mEndpoint,
-          [&socket, callbackCurrent, callbackBegin, callbackEnd, parser]
-              (const boost::system::error_code & errorCode, std::size_t bytesReceived) {
-            auto callbackNext = callbackCurrent + 1;
-
-            // Infinite loop for listening
-            receive(socket,
-                    (callbackNext != callbackEnd)
-                    ? callbackNext
-                    : callbackBegin,
-                    callbackBegin,
-                    callbackEnd,
-                    parser);
-
-            (*callbackCurrent)(errorCode,
-                               bytesReceived,
-                               parser);
-//                               parse<decltype(callbackCurrent->mEndpoint), Server::Buffer::const_iterator>);
-          }
-      );
-    } catch (std::exception & e) {
-      logger::errPrintln<logger::WARNING>("Server::Listener::receive: "
-                                          "exception caught when executing receive: {:s}",
-                                          e.what());
-    }
-  }
-}

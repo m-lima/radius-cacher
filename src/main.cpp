@@ -29,13 +29,13 @@ void printUsage(char * appPath, std::FILE * file = stdout) {
   auto appName = boost::filesystem::path{appPath}.stem().string();
 
   mfl::out::println(file, "Usage for {:s}:", appName);
-  mfl::out::println(file, "{:s} [-s SERVER_CONFIG] [-m MEMCACHED_CONFIG]", appName);
+  mfl::out::println(file, "{:s} [-s SERVER_CONFIG] [-m CACHE_CONFIG]", appName);
   mfl::out::println(file, "  {:<15s}{:s}",
                     "SERVER_CONFIG",
                     "Server configuration file (default: server.conf)");
   mfl::out::println(file, "  {:<15s}{:s}",
-                    "MEMCACHED_CONFIG",
-                    "Memcached configuration file (default: memcached.conf)");
+                    "CACHE_CONFIG",
+                    "cache configuration file (default: cache.conf)");
   mfl::out::println(file, "");
 
   mfl::out::println(file, "Usage for help:");
@@ -49,7 +49,7 @@ int main(int argc, char * argv[]) {
   }
 
   auto serverConfig = std::string{"server.conf"};
-  auto cacheConfig = std::string{"memcached.conf"};
+  auto cacheConfig = std::string{"cache.conf"};
 
   try {
     auto aServerConfig = mfl::args::extractOption(argv, argv + argc, "-s");
@@ -69,10 +69,12 @@ int main(int argc, char * argv[]) {
   }
 
   try {
-    auto radiusCacher = std::make_shared<RadiusCacher>(config::Cache::load(cacheConfig));
+    RadiusCacher radiusCacher{config::Cache::load(cacheConfig)};
+    logger::println<logger::DEBUG>("main: cache built");
     Server server{config::Server::load(serverConfig)};
+    logger::println<logger::DEBUG>("main: server built");
 
-    server.run(radiusCacher);
+    server.run(&radiusCacher);
 
   } catch (std::exception & ex) {
     logger::println<logger::FATAL>("main: terminating due to exception: {}", ex.what());

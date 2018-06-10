@@ -109,9 +109,7 @@ endif (NOT LIBMEMCACHED_FOUND)
 
 list(APPEND SOURCES
     ${CPP_SOURCE_DIR}/main.cpp
-    ${CPP_SOURCE_DIR}/server.cpp
     ${CPP_SOURCE_DIR}/config.cpp
-    ${CPP_SOURCE_DIR}/radius_cacher.cpp
   )
 
 list(APPEND HEADERS
