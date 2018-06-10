@@ -12,15 +12,15 @@ externalproject_add(libmemcached-project
   STAMP_DIR ${CMAKE_CURRENT_LIST_DIR}/pack/tmp/libmemcached
   TMP_DIR ${CMAKE_CURRENT_LIST_DIR}/pack/tmp/libmemcached
   BUILD_IN_SOURCE 1
-  CONFIGURE_COMMAND ./configure
+  CONFIGURE_COMMAND ./configure CXXFLAGS=-fpermissive
   BUILD_COMMAND make
   INSTALL_COMMAND ""
   )
 
 set(LIBMEMCACHED_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/pack/libmemcached)
-# set(LIBMEMCACHED_LIB_DIR ${CMAKE_CURRENT_LIST_DIR}/pack/libmemcached)
+set(LIBMEMCACHED_LIB_DIR ${CMAKE_CURRENT_LIST_DIR}/pack/libmemcached/libmemcached/.libs)
 
 add_library(libmemcached STATIC IMPORTED)
-# set_property(TARGET libmemcached PROPERTY IMPORTED_LOCATION ${LIBMEMCACHED_LIB_DIR}/libboost_chrono${BOOST_LIBRARY_SUFFIX})
+set_property(TARGET libmemcached PROPERTY IMPORTED_LOCATION ${LIBMEMCACHED_LIB_DIR}/libmemcached.so)
 add_dependencies(libmemcached libmemcached-project)
 set(LIBMEMCACHED_LIBRARY libmemcached)
