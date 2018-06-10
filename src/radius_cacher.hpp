@@ -4,14 +4,20 @@
 
 #pragma once
 
-#include <cstddef>
+#include "cache.hpp"
 
 class RadiusCacher {
+public:
+  RadiusCacher(config::Cache cache)
+      : mCache{cache} {};
+
   template <typename E, typename I>
-  void parse(const E &,
-             std::size_t bytesReceived,
-             I begin,
-             I end);
+  void operator()(const E &,
+                  std::size_t bytesReceived,
+                  I begin,
+                  I end);
+private:
+  const Cache mCache;
 };
 
 

@@ -116,7 +116,7 @@ list(APPEND SOURCES
 
 list(APPEND HEADERS
     ${CPP_SOURCE_DIR}/server.hpp
-    ${CPP_SOURCE_DIR}/cacher.hpp
+    ${CPP_SOURCE_DIR}/cache.hpp
     ${CPP_SOURCE_DIR}/radius.hpp
     ${CPP_SOURCE_DIR}/logger.hpp
     ${CPP_SOURCE_DIR}/config.hpp

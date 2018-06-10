@@ -53,10 +53,10 @@ namespace {
  * @param end the end of the buffer
  */
 template <typename E, typename I>
-void RadiusCacher::parse(const E &,
-                         std::size_t bytesReceived,
-                         I begin,
-                         I end) {
+void RadiusCacher::operator()(const E &,
+                              std::size_t bytesReceived,
+                              I begin,
+                              I end) {
 
   // Read the header
   auto header = radius::Header::extract(begin, end);
@@ -140,4 +140,3 @@ void RadiusCacher::parse(const E &,
 
   logger::println<logger::INFO>("{:s} {:s} with {:s}", action == STORE ? "Storing" : "Removing", *key, *value);
 }
-

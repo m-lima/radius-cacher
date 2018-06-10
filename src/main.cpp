@@ -6,6 +6,7 @@
 #include <vector>
 #include <thread>
 #include <stdexcept>
+#include <memory>
 
 #include <mfl/out.hpp>
 #include <mfl/args.hpp>
@@ -16,6 +17,7 @@
 #include "server.hpp"
 #include "config.hpp"
 #include "logger.hpp"
+#include "radius_cacher.hpp"
 
 /**
  * Prints the usage for the application
@@ -28,7 +30,9 @@ void printUsage(char * appPath, std::FILE * file = stdout) {
 
   mfl::out::println(file, "Usage for {:s}:", appName);
   mfl::out::println(file, "{:s} [-s SERVER_CONFIG] [-m MEMCACHED_CONFIG]", appName);
-  mfl::out::println(file, "  {:<15s}{:s}", "SERVER_CONFIG", "Server configuration file (default: server.conf)");
+  mfl::out::println(file, "  {:<15s}{:s}",
+                    "SERVER_CONFIG",
+                    "Server configuration file (default: server.conf)");
   mfl::out::println(file, "  {:<15s}{:s}",
                     "MEMCACHED_CONFIG",
                     "Memcached configuration file (default: memcached.conf)");
@@ -44,18 +48,18 @@ int main(int argc, char * argv[]) {
     return 0;
   }
 
-  auto serverConfigFile = std::string{"server.conf"};
-  auto memcachedConfigFile = std::string{"memcached.conf"};
+  auto serverConfig = std::string{"server.conf"};
+  auto cacheConfig = std::string{"memcached.conf"};
 
   try {
     auto aServerConfig = mfl::args::extractOption(argv, argv + argc, "-s");
     if (aServerConfig) {
-      serverConfigFile = std::string{aServerConfig};
+      serverConfig = std::string{aServerConfig};
     }
 
-    auto aMemcachedConfig = mfl::args::extractOption(argv, argv + argc, "-m");
-    if (aMemcachedConfig) {
-      memcachedConfigFile = std::string{aMemcachedConfig};
+    auto aCacheConfig = mfl::args::extractOption(argv, argv + argc, "-m");
+    if (aCacheConfig) {
+      cacheConfig = std::string{aCacheConfig};
     }
 
   } catch (std::exception & ex) {
@@ -65,8 +69,11 @@ int main(int argc, char * argv[]) {
   }
 
   try {
-    Server server{config::Server::load(serverConfigFile)};
-    server.run();
+    auto radiusCacher = std::make_shared<RadiusCacher>(config::Cache::load(cacheConfig));
+    Server server{config::Server::load(serverConfig)};
+
+    server.run(radiusCacher);
+
   } catch (std::exception & ex) {
     logger::println<logger::FATAL>("main: terminating due to exception: {}", ex.what());
     return -1;
