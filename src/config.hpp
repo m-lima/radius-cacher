@@ -4,21 +4,47 @@
 
 #pragma once
 
+#include <string>
+
 namespace config {
   struct Server {
-    const unsigned short port = 1813;
-    const unsigned short threadPoolSize = 8;
-    const std::string key = "";
-    const std::string value = "";
+    const unsigned short port;
+    const unsigned short threadPoolSize;
+    const std::string key;
+    const std::string value;
 
-    Config() {};
+    static Server load(const std::string & path);
+
+    Server(const unsigned short port,
+           const unsigned short threadPoolSize,
+           std::string key,
+           std::string value)
+        : port{port},
+          threadPoolSize{threadPoolSize},
+          key{std::move(key)},
+          value{std::move(value)} {}
   };
 
   struct Cache {
-    const std::string host = "localhost";
-    const unsigned short port = 11211;
-    const time_t ttl = 5;
-    const bool noReply = true;
+    const std::string host;
+    const unsigned short port;
+    const time_t ttl;
+    const bool noReply;
+    const bool useBinary;
+
+    static Cache load(const std::string & path);
+
+    Cache(std::string host,
+          const unsigned short port,
+          const time_t ttl,
+          const bool noReply,
+          const bool useBinary)
+        : host{std::move(host)},
+          port{port},
+          ttl{ttl},
+          noReply{noReply},
+          useBinary{useBinary} {}
+
   };
 }
 

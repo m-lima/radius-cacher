@@ -110,6 +110,8 @@ endif (NOT LIBMEMCACHED_FOUND)
 list(APPEND SOURCES
     ${CPP_SOURCE_DIR}/main.cpp
     ${CPP_SOURCE_DIR}/server.cpp
+    ${CPP_SOURCE_DIR}/config.cpp
+    ${CPP_SOURCE_DIR}/radius_cacher.cpp
   )
 
 list(APPEND HEADERS
@@ -117,6 +119,8 @@ list(APPEND HEADERS
     ${CPP_SOURCE_DIR}/cacher.hpp
     ${CPP_SOURCE_DIR}/radius.hpp
     ${CPP_SOURCE_DIR}/logger.hpp
+    ${CPP_SOURCE_DIR}/config.hpp
+    ${CPP_SOURCE_DIR}/radius_cacher.hpp
     )
 
 ##------------------------------------------------------------------------------
@@ -124,7 +128,7 @@ list(APPEND HEADERS
 ##
 
 add_executable(radius-cacher ${SOURCES} ${HEADERS})
-add_executable(cacher ${CPP_SOURCE_DIR}/cacher.cpp)
+add_executable(cacher ${CPP_SOURCE_DIR}/cacher.cpp ${CPP_SOURCE_DIR}/config.cpp)
 
 # Add make time constants
 if (DEFINED VERBOSE_LEVEL)
@@ -137,3 +141,4 @@ target_link_libraries(cacher PRIVATE ${LIBRARIES})
 
 # Add manual includes
 target_include_directories(radius-cacher PRIVATE ${INCLUDE_DIRS})
+target_include_directories(cacher PRIVATE ${INCLUDE_DIRS})

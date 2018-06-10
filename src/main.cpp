@@ -44,49 +44,32 @@ int main(int argc, char * argv[]) {
     return 0;
   }
 
-  auto serverConfig = std::string{"server.conf"};
-  auto memcachedConfig = std::string{"memcached.conf"};
+  auto serverConfigFile = std::string{"server.conf"};
+  auto memcachedConfigFile = std::string{"memcached.conf"};
 
   try {
     auto aServerConfig = mfl::args::extractOption(argv, argv + argc, "-s");
     if (aServerConfig) {
-      serverConfig = std::string{aServerConfig};
+      serverConfigFile = std::string{aServerConfig};
     }
 
     auto aMemcachedConfig = mfl::args::extractOption(argv, argv + argc, "-m");
     if (aMemcachedConfig) {
-      memcachedConfig = std::string{aMemcachedConfig};
+      memcachedConfigFile = std::string{aMemcachedConfig};
     }
 
   } catch (std::exception & ex) {
-    logger::errPrintln<logger::FATAL>("Error parsing arguments: {:s}", ex.what());
-    logger::errPrintln<logger::FATAL>();
+    logger::errPrintln<logger::FATAL>("main: error parsing arguments: {:s}", ex.what());
     printUsage(argv[0], stderr);
     return -1;
   }
 
-  Config config;
-
-  boost::asio::io_service ioService;
-
-  Server server{ioService, config.port};
-
-  if (config.threadPoolSize == 1) {
-    logger::println<logger::LOG>("Listening on UDP {:d} on a single thread", config.port);
-    ioService.run();
-  } else {
-    std::vector<std::thread> threadPool;
-    threadPool.reserve(config.threadPoolSize);
-
-    for (unsigned short i = 0; i < config.threadPoolSize; ++i) {
-      threadPool[i] = std::thread{[&ioService]() { ioService.run(); }};
-    }
-
-    logger::println<logger::LOG>("Listening on UDP {:d} on {:d} threads", config.port, config.threadPoolSize);
-
-    for (unsigned short i = 0; i < config.threadPoolSize; ++i) {
-      threadPool[i].join();
-    }
+  try {
+    Server server{config::Server::load(serverConfigFile)};
+    server.run();
+  } catch (std::exception & ex) {
+    logger::println<logger::FATAL>("main: terminating due to exception: {}", ex.what());
+    return -1;
   }
 
   return 0;

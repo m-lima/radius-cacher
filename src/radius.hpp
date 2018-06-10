@@ -8,6 +8,7 @@
 #include <ctime>
 
 #include <fmt/format.h>
+#include <mfl/string.hpp>
 
 /**
  * File based on Radius Accounting specification RFC-2866
@@ -131,6 +132,7 @@ namespace radius {
     static constexpr auto SIZE = sizeof(AttributeRaw);
 
     enum Type {
+      INVALID = -1,
       ACCT_STATUS_TYPE = 40,
       USER_NAME = 1,
       FRAMED_IP_ADDRESS = 8
@@ -297,5 +299,16 @@ namespace radius {
     }
   };
 
-}
+  constexpr Attribute::Type mapType(const char * name) {
+    using namespace mfl::string::hash32;
+
+    switch(hash(name)) {
+      case "ACCT_STATUS_TYPE"_f32: return Attribute::ACCT_STATUS_TYPE;
+      case "USER_NAME"_f32: return Attribute::USER_NAME;
+      case "FRAMED_IP_ADDRESS"_f32: return Attribute::FRAMED_IP_ADDRESS;
+      default: return Attribute::INVALID;
+    }
+  }
+
+  }
 
