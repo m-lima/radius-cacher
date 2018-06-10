@@ -9,12 +9,19 @@
 #include <fmt/ostream.h>
 #include <fmt/time.h>
 
-#ifndef VERBOSE_LEVEL
-#define VERBOSE_LEVEL 3
+#ifndef RC_VERBOSE_LEVEL
+#define RC_VERBOSE_LEVEL 3
 #endif
 
 namespace logger {
 
+  /**
+   * The verbose level for the application.
+   * Any log that is emitted at a level equal or lesser will be printed
+   *
+   * Use:
+   * cmake -DRC_VERBOSE_LEVEL=<value> (...)
+   */
   enum Level {
     NONE = -1,
     FATAL = 1,
@@ -67,7 +74,7 @@ namespace logger {
 
   template <Level level, typename ... Args>
   inline void println(std::FILE * file, const char * const format, const Args & ... args) {
-    if constexpr (level <= VERBOSE_LEVEL) {
+    if constexpr (level <= RC_VERBOSE_LEVEL) {
       auto time = std::time(nullptr);
       fmt::print(file, FORMAT, *std::localtime(&time), LogPrepend<level>::PREPEND, fmt::format(format, args...));
     }
@@ -85,7 +92,7 @@ namespace logger {
 
   template <Level level>
   inline void println(std::FILE * file, const std::string & string) {
-    if constexpr (level <= VERBOSE_LEVEL) {
+    if constexpr (level <= RC_VERBOSE_LEVEL) {
       auto time = std::time(nullptr);
       fmt::print(file, FORMAT, *std::localtime(&time), LogPrepend<level>::PREPEND, string);
     }
@@ -103,7 +110,7 @@ namespace logger {
 
   template <Level level>
   inline void println(std::FILE * file) {
-    if constexpr (level <= VERBOSE_LEVEL) {
+    if constexpr (level <= RC_VERBOSE_LEVEL) {
       auto time = std::time(nullptr);
       fmt::print(file, FORMAT, *std::localtime(&time), LogPrepend<level>::PREPEND, "");
     }

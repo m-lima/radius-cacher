@@ -43,14 +43,26 @@ struct Callback {
 /**
  * Main server to handle UDP connections
  *
- * Works with 10 rolling callback handlers shared across all threads
- * Each callback handler has 8KB buffer for the packet. This is currently not customizable to
- * harness std::array compile-time stack allocation
+ * Works with 8 rolling callback handlers shared across all threads
+ * Each callback handler has 8KB buffer for the packet by default.
+ *
+ * This is currently customizable at compile-time to harness std::array stack allocation
+ * Use:
+ * cmake -DRC_BUFFER_SIZE=<value> -DRC_CALLBACK_COUNT=<value> (...)
  */
 class Server {
 public:
-  static constexpr auto BUFFER_SIZE = 1024 * 8;
-  static constexpr unsigned short CALLBACK_COUNT = 10;
+
+#ifndef RC_BUFFER_SIZE
+  #define RC_BUFFER_SIZE 1024 * 8
+#endif
+
+#ifndef RC_CALLBACK_COUNT
+  #define RC_CALLBACK_COUNT 8
+#endif
+
+  static constexpr unsigned int BUFFER_SIZE = RC_BUFFER_SIZE;
+  static constexpr unsigned short CALLBACK_COUNT = RC_CALLBACK_COUNT;
 
   using boostUdp = boost::asio::ip::udp;
   using Buffer = std::array<std::uint8_t, BUFFER_SIZE>;
