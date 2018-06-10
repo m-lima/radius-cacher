@@ -17,8 +17,10 @@ endif()
 
 ExternalProject_Add(boost-project
   PREFIX deps/boost
-  URL https://sourceforge.net/projects/boost/files/boost/1.63.0/boost_1_63_0.tar.gz/download
-  URL_HASH SHA256=fe34a4e119798e10b8cc9e565b3b0284e9fd3977ec8a1b19586ad1dec397088b
+  URL https://dl.bintray.com/boostorg/release/1.67.0/source/boost_1_67_0.tar.gz
+  URL_HASH SHA256=8aa4e330c870ef50a896634c931adf468b21f8a69b77007e45c444151229f665
+  # URL https://sourceforge.net/projects/boost/files/boost/1.63.0/boost_1_63_0.tar.gz/download
+  # URL_HASH SHA256=fe34a4e119798e10b8cc9e565b3b0284e9fd3977ec8a1b19586ad1dec397088b
   DOWNLOAD_DIR ${CMAKE_CURRENT_LIST_DIR}/pack/downloads
   SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/pack/boost
   STAMP_DIR ${CMAKE_CURRENT_LIST_DIR}/pack/tmp/boost
