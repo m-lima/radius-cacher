@@ -7,103 +7,115 @@
 #include <string>
 
 #include <fmt/ostream.h>
+#include <fmt/time.h>
 
 #ifndef VERBOSE_LEVEL
-#define VERBOSE_LEVEL 0
+#define VERBOSE_LEVEL 3
 #endif
 
 namespace logger {
 
   enum Level {
-    FATAL = 0,
-    ERROR = 1,
-    WARNING = 2,
-    INFO = 3,
-    DEBUG = 4,
-    ALL = 5
+    NONE = -1,
+    FATAL = 1,
+    ERROR = 2,
+    LOG = 3,
+    WARNING = 4,
+    INFO = 5,
+    DEBUG = 6
   };
 
-  template <int Level>
-  struct LogPrepend {
+  constexpr auto FORMAT = "[{:%F %T}] {:s}{:s}\n";
+
+  template<Level level>
+  struct LogPrepend {};
+
+  template <>
+  struct LogPrepend<NONE> {
     static constexpr auto PREPEND = "";
   };
 
   template <>
-  struct LogPrepend<4> {
+  struct LogPrepend<DEBUG> {
     static constexpr auto PREPEND = "DEBUG: ";
   };
 
   template <>
-  struct LogPrepend<3> {
+  struct LogPrepend<INFO> {
     static constexpr auto PREPEND = "INFO: ";
   };
 
   template <>
-  struct LogPrepend<2> {
+  struct LogPrepend<WARNING> {
     static constexpr auto PREPEND = "WARNING: ";
   };
 
   template <>
-  struct LogPrepend<1> {
+  struct LogPrepend<LOG> {
+    static constexpr auto PREPEND = "LOG: ";
+  };
+
+  template <>
+  struct LogPrepend<ERROR> {
     static constexpr auto PREPEND = "ERROR: ";
   };
 
   template <>
-  struct LogPrepend<0> {
+  struct LogPrepend<FATAL> {
     static constexpr auto PREPEND = "FATAL: ";
   };
 
-  template <int Level, typename ... Args>
+  template <Level level, typename ... Args>
+  inline void println(std::FILE * file, const char * const format, const Args & ... args) {
+    if constexpr (level <= VERBOSE_LEVEL) {
+      auto time = std::time(nullptr);
+      fmt::print(file, FORMAT, *std::localtime(&time), LogPrepend<level>::PREPEND, fmt::format(format, args...));
+    }
+  }
+
+  template <Level level, typename ... Args>
   inline void println(const char * const format, const Args & ... args) {
-    if constexpr (Level <= VERBOSE_LEVEL) {
-      std::string logFormat{LogPrepend<Level>::PREPEND};
-      logFormat.append(format);
-      logFormat.append("\n");
-      fmt::print(logFormat, args...);
-    }
+    println<level>(stdout, format, args...);
   }
 
-  template <int Level, typename ... Args>
+  template <Level level, typename ... Args>
   inline void errPrintln(const char * const format, const Args & ... args) {
-    if constexpr (Level <= VERBOSE_LEVEL) {
-      std::string logFormat{LogPrepend<Level>::PREPEND};
-      logFormat.append(format);
-      logFormat.append("\n");
-      fmt::print(stderr, logFormat, args...);
+    println<level>(stderr, format, args...);
+  }
+
+  template <Level level>
+  inline void println(std::FILE * file, const std::string & string) {
+    if constexpr (level <= VERBOSE_LEVEL) {
+      auto time = std::time(nullptr);
+      fmt::print(file, FORMAT, *std::localtime(&time), LogPrepend<level>::PREPEND, string);
     }
   }
 
-  template <int Level>
+  template <Level level>
   inline void println(const std::string & string) {
-    if constexpr (Level <= VERBOSE_LEVEL) {
-      std::string logFormat{LogPrepend<Level>::PREPEND};
-      logFormat.append(string);
-      logFormat.append("\n");
-      fmt::print(logFormat);
-    }
+    println<level>(stdout, string);
   }
 
-  template <int Level>
+  template <Level level>
   inline void errPrintln(const std::string & string) {
-    if constexpr (Level <= VERBOSE_LEVEL) {
-      std::string logFormat{LogPrepend<Level>::PREPEND};
-      logFormat.append(string);
-      logFormat.append("\n");
-      fmt::print(stderr, logFormat);
+    println<level>(stderr, string);
+  }
+
+  template <Level level>
+  inline void println(std::FILE * file) {
+    if constexpr (level <= VERBOSE_LEVEL) {
+      auto time = std::time(nullptr);
+      fmt::print(file, FORMAT, *std::localtime(&time), LogPrepend<level>::PREPEND, "");
     }
   }
 
-  template <int Level>
+  template <Level level>
   inline void println() {
-    if constexpr (Level <= VERBOSE_LEVEL) {
-      fmt::print("\n");
-    }
+    println<level>(stdout);
   }
 
-  template <int Level>
+  template <Level level>
   inline void errPrintln() {
-    if constexpr (Level <= VERBOSE_LEVEL) {
-      fmt::print("\n");
-    }
+    println<level>(stderr);
   }
 }

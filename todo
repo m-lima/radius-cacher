@@ -1,4 +1,5 @@
 [ ] Authenticator check
 [ ] Configuration file for server
 [ ] Map AVP number to name
-[ ] Timestamp on logs
+[x] Timestamp on logs
+[ ] Use syslogger (remove timestamp from logs)

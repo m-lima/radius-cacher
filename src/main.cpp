@@ -15,6 +15,7 @@
 
 #include "server.hpp"
 #include "config.hpp"
+#include "logger.hpp"
 
 /**
  * Prints the usage for the application
@@ -58,8 +59,8 @@ int main(int argc, char * argv[]) {
     }
 
   } catch (std::exception & ex) {
-    mfl::out::println(stderr, "Error parsing arguments: {:s}", ex.what());
-    mfl::out::println(stderr, "");
+    logger::errPrintln<logger::FATAL>("Error parsing arguments: {:s}", ex.what());
+    logger::errPrintln<logger::FATAL>();
     printUsage(argv[0], stderr);
     return -1;
   }
@@ -71,7 +72,7 @@ int main(int argc, char * argv[]) {
   Server server{ioService, config.port};
 
   if (config.threadPoolSize == 1) {
-    mfl::out::println("Listening on UDP {:d} on a single thread", config.port);
+    logger::println<logger::LOG>("Listening on UDP {:d} on a single thread", config.port);
     ioService.run();
   } else {
     std::vector<std::thread> threadPool;
@@ -81,7 +82,7 @@ int main(int argc, char * argv[]) {
       threadPool[i] = std::thread{[&ioService]() { ioService.run(); }};
     }
 
-    mfl::out::println("Listening on UDP {:d} on {:d} threads", config.port, config.threadPoolSize);
+    logger::println<logger::LOG>("Listening on UDP {:d} on {:d} threads", config.port, config.threadPoolSize);
 
     for (unsigned short i = 0; i < config.threadPoolSize; ++i) {
       threadPool[i].join();
