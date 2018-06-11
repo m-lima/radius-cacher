@@ -9,16 +9,24 @@ RUN apt-get update && \
       libmemcached-dev \
       git
 
-RUN git clone https://github.com/m-lima/radius-cacher.git source && \
-    cd source && \
-    git submodule update --init --recursive && \
+COPY . .
+
+RUN rm -rf build && \
     mkdir build && \
     cd build && \
-    cmake -DCMAKE_BUILD_TYPE=Release -DRC_DISABLE_CACHE_OPERATIONS .. && \
-    make && \
-    mv radius-cacher /opt/radius-cacher/. && \
-    cd /opt/radius-cacher && \
-    rm -rf source
+    cmake -DCMAKE_BUILD_TYPE=Release .. && \
+    make
+
+# RUN git clone https://github.com/m-lima/radius-cacher.git source && \
+#     cd source && \
+#     git submodule update --init --recursive && \
+#     mkdir build && \
+#     cd build && \
+#     cmake -DCMAKE_BUILD_TYPE=Release .. && \
+#     make && \
+#     mv radius-cacher /opt/radius-cacher/. && \
+#     cd /opt/radius-cacher && \
+#     rm -rf source
 
 FROM ubuntu:bionic
 
@@ -29,9 +37,11 @@ RUN apt-get update && \
       libmemcached11 && \
     apt-get clean
 
-COPY --from=0 /opt/radius-cacher/radius-cacher /opt/radius-cacher/radius-cacher
+#COPY --from=0 /opt/radius-cacher/radius-cacher /opt/radius-cacher/radius-cacher
+COPY --from=0 /opt/radius-cacher/build/radius-cacher /opt/radius-cacher/radius-cacher
 
-RUN echo HOST=10.80.15.181 > /etc/radius-cacher/cache.conf
+RUN mkdir /etc/radius-cacher && \
+    echo HOST=10.80.15.181 > /etc/radius-cacher/cache.conf
 
 EXPOSE 1813/udp
 

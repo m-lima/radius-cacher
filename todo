@@ -1,9 +1,15 @@
+ X  :Done
+ O  :Done but can be extended
+ !  :Important
+ .  :Minor
+
 [ ]  Authenticator check
 [X]  Configuration file for server
-[o]  Map AVP number to name
-[x]  Timestamp on logs
+[O]  Map AVP number to name
+[X]  Timestamp on logs
 [ ]  Use syslogger
 [ ]  CMake options
 [ ]! Avoid libmemcached
 [ ]! Read configuration from env vars
 [ ]  Remove git submodule and use external project
+[ ]. Get rid of the pointer, if possible
