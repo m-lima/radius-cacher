@@ -150,7 +150,7 @@ public:
      * Use:
      * cmake -DRC_DISABLE_CACHE_OPERATIONS (...)
      */
-#ifdef RC_DISABLE_CACHE_OPERATIONS
+#ifndef RC_DISABLE_CACHE_OPERATIONS
     switch (action) {
       case STORE:
         mCache.set(*key, *value);

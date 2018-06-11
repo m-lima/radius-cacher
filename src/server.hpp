@@ -43,7 +43,7 @@ struct Callback {
 /**
  * Main server to handle UDP connections
  *
- * Works with 8 rolling callback handlers shared across all threads
+ * Works with 16 rolling callback handlers shared across all threads
  * Each callback handler has 8KB buffer for the packet by default.
  *
  * This is currently customizable at compile-time to harness std::array stack allocation
@@ -58,7 +58,7 @@ public:
 #endif
 
 #ifndef RC_CALLBACK_COUNT
-  #define RC_CALLBACK_COUNT 8
+  #define RC_CALLBACK_COUNT 16
 #endif
 
   static constexpr unsigned int BUFFER_SIZE = RC_BUFFER_SIZE;
@@ -113,9 +113,9 @@ private:
           }
       );
     } catch (std::exception & e) {
-      logger::errPrintln<logger::WARNING>("Server::Listener::receive: "
-                                          "exception caught when executing receive: {:s}",
-                                          e.what());
+      logger::errPrintln<logger::WARN>("Server::Listener::receive: "
+                                       "exception caught when executing receive: {:s}",
+                                       e.what());
     }
   }
 

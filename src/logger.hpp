@@ -10,7 +10,7 @@
 #include <fmt/time.h>
 
 #ifndef RC_VERBOSE_LEVEL
-#define RC_VERBOSE_LEVEL 3
+#define RC_VERBOSE_LEVEL 4
 #endif
 
 namespace logger {
@@ -26,8 +26,8 @@ namespace logger {
     NONE = -1,
     FATAL = 1,
     ERROR = 2,
-    LOG = 3,
-    WARNING = 4,
+    WARN = 3,
+    LOG = 4,
     INFO = 5,
     DEBUG = 6
   };
@@ -53,13 +53,13 @@ namespace logger {
   };
 
   template <>
-  struct LogPrepend<WARNING> {
-    static constexpr auto PREPEND = "WARNING: ";
+  struct LogPrepend<LOG> {
+    static constexpr auto PREPEND = "LOG: ";
   };
 
   template <>
-  struct LogPrepend<LOG> {
-    static constexpr auto PREPEND = "LOG: ";
+  struct LogPrepend<WARN> {
+    static constexpr auto PREPEND = "WARN: ";
   };
 
   template <>
