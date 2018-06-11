@@ -145,6 +145,12 @@ public:
 
     logger::println<logger::INFO>("{:s} {:s} with {:s}", action == STORE ? "Storing" : "Removing", *key, *value);
 
+    /**
+     * Debugging compile-time flag that turns off memcached operations
+     * Use:
+     * cmake -DRC_DISABLE_CACHE_OPERATIONS (...)
+     */
+#ifdef RC_DISABLE_CACHE_OPERATIONS
     switch (action) {
       case STORE:
         mCache.set(*key, *value);
@@ -152,6 +158,7 @@ public:
       case REMOVE:
         mCache.remove(*key);
     }
+#endif
   }
 
 private:

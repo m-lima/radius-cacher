@@ -130,6 +130,9 @@ endif()
 if (DEFINED RC_BUFFER_SIZE)
   add_definitions(-DRC_BUFFER_SIZE=${RC_BUFFER_SIZE})
 endif()
+if (DEFINED RC_DISABLE_CACHE_OPERATIONS)
+  add_definitions(-DRC_DISABLE_CACHE_OPERATIONS)
+endif()
 
 # Link with FIND_PACKAGE
 target_link_libraries(radius-cacher PRIVATE ${LIBRARIES})

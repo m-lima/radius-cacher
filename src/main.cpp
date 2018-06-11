@@ -29,10 +29,10 @@ void printUsage(char * appPath, std::FILE * file = stdout) {
   mfl::out::println(file, "radius-cacher [-s SERVER_CONFIG] [-m CACHE_CONFIG]");
   mfl::out::println(file, "  {:<15s}{:s}",
                     "SERVER_CONFIG",
-                    "Server configuration file (default: server.conf)");
+                    "Server configuration file (default: /etc/radius-cacher/server.conf)");
   mfl::out::println(file, "  {:<15s}{:s}",
                     "CACHE_CONFIG",
-                    "cache configuration file (default: cache.conf)");
+                    "cache configuration file (default: /etc/radius-cacher/cache.conf)");
   mfl::out::println(file, "");
 
   mfl::out::println(file, "Usage for help:");
@@ -45,8 +45,8 @@ int main(int argc, char * argv[]) {
     return 0;
   }
 
-  auto serverConfig = std::string{"server.conf"};
-  auto cacheConfig = std::string{"cache.conf"};
+  auto serverConfig = std::string{"/etc/radius-cacher/server.conf"};
+  auto cacheConfig = std::string{"/etc/radius-cacher/cache.conf"};
 
   try {
     auto aServerConfig = mfl::args::extractOption(argv, argv + argc, "-s");

@@ -34,7 +34,7 @@ namespace logger {
 
   constexpr auto FORMAT = "[{:%F %T}] {:s}{:s}\n";
 
-  template<Level level>
+  template <Level level>
   struct LogPrepend {};
 
   template <>

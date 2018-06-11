@@ -53,7 +53,7 @@ namespace {
 
   auto getBool(const std::smatch match) {
     using namespace mfl::string::hash32;
-    switch(hash(match[2])) {
+    switch (hash(match[2])) {
       case "TRUE"_f32: return true;
       case "FALSE"_f32: return false;
       default: throw std::runtime_error(fmt::format("{:s} can take TRUE or FALSE only", match[1]));
@@ -77,7 +77,7 @@ namespace config {
     std::string value = "USER_NAME";
 
     parse(path, LINE_REGEX, [&](const std::smatch & match) {
-      switch(hash(match[1])) {
+      switch (hash(match[1])) {
         case "PORT"_f32:
           port = getShort(match);
           break;
@@ -120,7 +120,7 @@ namespace config {
     bool useBinary = true;
 
     parse(path, LINE_REGEX, [&](const std::smatch & match) {
-      switch(hash(match[1])) {
+      switch (hash(match[1])) {
         case "HOST"_f32:
           host = match[2];
           break;

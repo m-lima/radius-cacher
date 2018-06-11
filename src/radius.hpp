@@ -302,7 +302,7 @@ namespace radius {
   constexpr Attribute::Type mapType(const char * name) {
     using namespace mfl::string::hash32;
 
-    switch(hash(name)) {
+    switch (hash(name)) {
       case "ACCT_STATUS_TYPE"_f32: return Attribute::ACCT_STATUS_TYPE;
       case "USER_NAME"_f32: return Attribute::USER_NAME;
       case "FRAMED_IP_ADDRESS"_f32: return Attribute::FRAMED_IP_ADDRESS;
@@ -310,5 +310,5 @@ namespace radius {
     }
   }
 
-  }
+}
 
