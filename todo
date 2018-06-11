@@ -1,5 +1,9 @@
-[ ] Authenticator check
-[ ] Configuration file for server
-[ ] Map AVP number to name
-[x] Timestamp on logs
-[ ] Use syslogger (remove timestamp from logs)
+[ ]  Authenticator check
+[X]  Configuration file for server
+[o]  Map AVP number to name
+[x]  Timestamp on logs
+[ ]  Use syslogger
+[ ]  CMake options
+[ ]! Avoid libmemcached
+[ ]! Read configuration from env vars
+[ ]  Remove git submodule and use external project
