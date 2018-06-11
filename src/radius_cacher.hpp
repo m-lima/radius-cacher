@@ -44,24 +44,21 @@ private:
   }
 
 public:
-  RadiusCacher(config::Cache cache)
-      : mCache{cache} {};
 
 /**
  * Parse the incoming buffer for packet and call for action
  *
- * @tparam E enpoint type
  * @tparam I the itarator for the buffer
- * @param errorCode error code given by the socket
  * @param bytesReceived number of bytes received in current packet
  * @param begin the start of the buffer
  * @param end the end of the buffer
+ * @param cache cache instance to push changes
  */
-  template <typename E, typename I>
-  void operator()(const E &,
-                  std::size_t bytesReceived,
+  template <typename I>
+  void operator()(std::size_t bytesReceived,
                   I begin,
-                  I end) {
+                  I end,
+                  Cache * const cache) const {
 
     // Read the header
     auto header = radius::Header::extract(begin, end);
@@ -153,16 +150,13 @@ public:
 #ifndef RC_DISABLE_CACHE_OPERATIONS
     switch (action) {
       case STORE:
-        mCache.set(*key, *value);
+        cache->set(*key, *value);
         break;
       case REMOVE:
-        mCache.remove(*key);
+        cache->remove(*key);
     }
 #endif
   }
-
-private:
-  Cache mCache;
 };
 
 

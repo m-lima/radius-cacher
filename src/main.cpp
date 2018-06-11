@@ -66,12 +66,11 @@ int main(int argc, char * argv[]) {
   }
 
   try {
-    RadiusCacher radiusCacher{config::Cache::load(cacheConfig)};
     logger::println<logger::DEBUG>("main: cache built");
     Server server{config::Server::load(serverConfig)};
     logger::println<logger::DEBUG>("main: server built");
 
-    server.run(&radiusCacher);
+    server.run(RadiusCacher{}, config::Cache::load(cacheConfig));
 
   } catch (std::exception & ex) {
     logger::println<logger::FATAL>("main: terminating due to exception: {}", ex.what());
