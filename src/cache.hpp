@@ -6,7 +6,6 @@
 
 #include <string>
 #include <vector>
-#include <mutex>
 
 #include <libmemcached/memcached.hpp>
 #include <fmt/format.h>
@@ -16,7 +15,6 @@
 class Cache {
 public:
   inline void set(const std::string & key, const std::string & value) {
-    std::lock_guard garsd{mMutex};
     mMemcache.set(key, std::vector<char>{value.cbegin(), value.cend()}, mTTL, 0);
   }
 
@@ -55,5 +53,4 @@ public:
 private:
   memcache::Memcache mMemcache;
   time_t mTTL;
-  std::mutex mMutex;
 };

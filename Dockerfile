@@ -41,7 +41,8 @@ RUN apt-get update && \
 COPY --from=0 /opt/radius-cacher/build/radius-cacher /opt/radius-cacher/radius-cacher
 
 RUN mkdir /etc/radius-cacher && \
-    echo HOST=10.80.15.181 > /etc/radius-cacher/cache.conf
+    echo HOST=10.80.15.181 > /etc/radius-cacher/cache.conf && \
+    echo THREAD_POOL_SIZE=1 > /etc/radius-cacher/server.conf
 
 EXPOSE 1813/udp
 

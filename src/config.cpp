@@ -54,8 +54,8 @@ namespace {
   auto getBool(const std::smatch match) {
     using namespace mfl::string::hash32;
     switch (hash(match[2])) {
-      case "TRUE"_f32: return true;
-      case "FALSE"_f32: return false;
+      case "TRUE"_h: return true;
+      case "FALSE"_h: return false;
       default: throw std::runtime_error(fmt::format("{:s} can take TRUE or FALSE only", match[1]));
     }
   }
@@ -78,16 +78,16 @@ namespace config {
 
     parse(path, LINE_REGEX, [&](const std::smatch & match) {
       switch (hash(match[1])) {
-        case "PORT"_f32:
+        case "PORT"_h:
           port = getShort(match);
           break;
-        case "THREAD_POOL_SIZE"_f32:
+        case "THREAD_POOL_SIZE"_h:
           threadPoolSize = getShort(match);
           break;
-        case "KEY"_f32:
+        case "KEY"_h:
           key = match[2];
           break;
-        case "VALUE"_f32:
+        case "VALUE"_h:
           value = match[2];
           break;
       }
@@ -122,22 +122,22 @@ namespace config {
 
     parse(path, LINE_REGEX, [&](const std::smatch & match) {
       switch (hash(match[1])) {
-        case "HOST"_f32:
+        case "HOST"_h:
           host = match[2];
           break;
-        case "PORT"_f32:
+        case "PORT"_h:
           port = getShort(match);
           break;
-        case "TTL"_f32:
+        case "TTL"_h:
           ttl = std::stoi(match[2]);
           break;
-        case "NO_REPLY"_f32:
+        case "NO_REPLY"_h:
           noReply = getBool(match);
           break;
-        case "USE_BINARY"_f32:
+        case "USE_BINARY"_h:
           useBinary = getBool(match);
           break;
-        case "TCP_KEEP_ALIVE"_f32:
+        case "TCP_KEEP_ALIVE"_h:
           tcpKeepAlive = getBool(match);
           break;
       }

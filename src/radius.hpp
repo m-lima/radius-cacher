@@ -303,9 +303,9 @@ namespace radius {
     using namespace mfl::string::hash32;
 
     switch (hash(name)) {
-      case "ACCT_STATUS_TYPE"_f32: return Attribute::ACCT_STATUS_TYPE;
-      case "USER_NAME"_f32: return Attribute::USER_NAME;
-      case "FRAMED_IP_ADDRESS"_f32: return Attribute::FRAMED_IP_ADDRESS;
+      case "ACCT_STATUS_TYPE"_h: return Attribute::ACCT_STATUS_TYPE;
+      case "USER_NAME"_h: return Attribute::USER_NAME;
+      case "FRAMED_IP_ADDRESS"_h: return Attribute::FRAMED_IP_ADDRESS;
       default: return Attribute::INVALID;
     }
   }
