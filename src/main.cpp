@@ -24,7 +24,7 @@
  * @param appPath the raw argv[0] value for the executable call
  * @param file which file to print to
  */
-void printUsage(char * appPath, std::FILE * file = stdout) {
+void printUsage(std::FILE * file = stdout) {
   mfl::out::println(file, "Usage for radius-cacher:");
   mfl::out::println(file, "radius-cacher [-s SERVER_CONFIG] [-m CACHE_CONFIG]");
   mfl::out::println(file, "  {:<15s}{:s}",
@@ -41,7 +41,7 @@ void printUsage(char * appPath, std::FILE * file = stdout) {
 
 int main(int argc, char * argv[]) {
   if (mfl::args::findOption(argv, argv + argc, "-h")) {
-    printUsage(argv[0]);
+    printUsage();
     return 0;
   }
 
@@ -61,7 +61,7 @@ int main(int argc, char * argv[]) {
 
   } catch (std::exception & ex) {
     logger::errPrintln<logger::FATAL>("main: error parsing arguments: {:s}", ex.what());
-    printUsage(argv[0], stderr);
+    printUsage(stderr);
     return -1;
   }
 
