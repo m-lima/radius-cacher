@@ -22,7 +22,7 @@ public:
     mMemcache.remove(key);
   }
 
-  explicit Cache(const config::Cache & config)
+  explicit Cache(const Config::Cache & config)
       : mMemcache{fmt::format("--SERVER={:s}:{:d} {:s} {:s} {:s}",
                               config.host,
                               config.port,
@@ -30,9 +30,6 @@ public:
                               config.useBinary ? "--BINARY-PROTOCOL" : "",
                               config.tcpKeepAlive ? "--TCP-KEEPALIVE" : "")},
         mTTL{config.ttl} {
-#ifdef RC_DISABLE_CACHE_OPERATIONS
-    logger::println<logger::WARN>("Cache: cache operations disabled");
-#endif
   }
 
   /**
@@ -45,6 +42,9 @@ public:
    */
   Cache(const Cache &) = delete;
 
+  /**
+   * Allow move constructor
+   */
   Cache(Cache &&) = default;
 
   /**

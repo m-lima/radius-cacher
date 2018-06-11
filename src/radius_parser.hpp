@@ -10,7 +10,7 @@
 #include "radius.hpp"
 #include "logger.hpp"
 
-class RadiusCacher {
+class RadiusParser {
 private:
   /**
    * Possible actions to be taken given a certain packet
@@ -30,7 +30,7 @@ private:
    * @return the action to be taken
    */
   template <typename I>
-  static auto extractAction(I begin, I end) {
+  static inline auto extractAction(I begin, I end) {
     auto type = radius::ValueReader::getUnsignedInt(begin, end);
     switch (type) {
       case radius::START:
@@ -44,16 +44,15 @@ private:
   }
 
 public:
-
-/**
- * Parse the incoming buffer for packet and call for action
- *
- * @tparam I the itarator for the buffer
- * @param bytesReceived number of bytes received in current packet
- * @param begin the start of the buffer
- * @param end the end of the buffer
- * @param cache cache instance to push changes
- */
+  /**
+   * Parse the incoming buffer for packet and call for action
+   *
+   * @tparam I the itarator for the buffer
+   * @param bytesReceived number of bytes received in current packet
+   * @param begin the start of the buffer
+   * @param end the end of the buffer
+   * @param cache cache instance to push changes
+   */
   template <typename I>
   void operator()(std::size_t bytesReceived,
                   I begin,
@@ -142,12 +141,6 @@ public:
 
     logger::println<logger::INFO>("{:s} {:s} with {:s}", action == STORE ? "Storing" : "Removing", *key, *value);
 
-    /**
-     * Debugging compile-time flag that turns off memcached operations
-     * Use:
-     * cmake -DRC_DISABLE_CACHE_OPERATIONS (...)
-     */
-#ifndef RC_DISABLE_CACHE_OPERATIONS
     switch (action) {
       case STORE:
         cache->set(*key, *value);
@@ -155,8 +148,5 @@ public:
       case REMOVE:
         cache->remove(*key);
     }
-#endif
   }
 };
-
-

@@ -16,7 +16,7 @@
 #include "server.hpp"
 #include "config.hpp"
 #include "logger.hpp"
-#include "radius_cacher.hpp"
+#include "radius_parser.hpp"
 
 /**
  * Prints the usage for the application
@@ -66,11 +66,10 @@ int main(int argc, char * argv[]) {
   }
 
   try {
-    logger::println<logger::DEBUG>("main: cache built");
-    Server server{config::Server::load(serverConfig)};
+    Server server{{serverConfig, cacheConfig}};
     logger::println<logger::DEBUG>("main: server built");
 
-    server.run(RadiusCacher{}, config::Cache::load(cacheConfig));
+    server.run(RadiusParser{});
 
   } catch (std::exception & ex) {
     logger::println<logger::FATAL>("main: terminating due to exception: {}", ex.what());

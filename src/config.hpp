@@ -6,7 +6,7 @@
 
 #include <string>
 
-namespace config {
+struct Config {
   struct Server {
     const unsigned short port;
     const unsigned short threadPoolSize;
@@ -49,5 +49,12 @@ namespace config {
           tcpKeepAlive{tcpKeepAlive} {}
 
   };
-}
+
+  Config(const std::string & serverConfigPath, const std::string & cacheConfigPath)
+      : server{Server::load(serverConfigPath)},
+        cache{Cache::load(cacheConfigPath)} {}
+
+  const Server server;
+  const Cache cache;
+};
 
