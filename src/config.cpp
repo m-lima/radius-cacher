@@ -93,22 +93,22 @@ namespace config {
       }
     });
 
-    logger::println<logger::INFO>("config::Server::load: configuring server with\n"
-                                  "{:s} = {}\n"
-                                  "{:s} = {}\n"
-                                  "{:s} = {}\n"
-                                  "{:s} = {}",
-                                  "PORT", port,
-                                  "THREAD_POOL_SIZE", threadPoolSize,
-                                  "KEY", key,
-                                  "VALUE", value);
+    logger::println<logger::LOG>("config::Server::load: configuring server with\n"
+                                 "{:s} = {}\n"
+                                 "{:s} = {}\n"
+                                 "{:s} = {}\n"
+                                 "{:s} = {}",
+                                 "PORT", port,
+                                 "THREAD_POOL_SIZE", threadPoolSize,
+                                 "KEY", key,
+                                 "VALUE", value);
     return Server{port, threadPoolSize, key, value};
   }
 
   Cache Cache::load(const std::string & path) {
     using namespace mfl::string::hash32;
     static const std::regex LINE_REGEX = std::regex("^[[:space:]]*"
-                                                    "(HOST|PORT|TTL|NO_REPLY|USE_BINARY)"
+                                                    "(HOST|PORT|TTL|NO_REPLY|USE_BINARY|TCP_KEEP_ALIVE)"
                                                     "[[:space:]]*=[[:space:]]*"
                                                     "(.+)"
                                                     "[[:space:]]*$");
@@ -118,6 +118,7 @@ namespace config {
     time_t ttl = 5400;
     bool noReply = true;
     bool useBinary = true;
+    bool tcpKeepAlive = true;
 
     parse(path, LINE_REGEX, [&](const std::smatch & match) {
       switch (hash(match[1])) {
@@ -136,21 +137,26 @@ namespace config {
         case "USE_BINARY"_f32:
           useBinary = getBool(match);
           break;
+        case "TCP_KEEP_ALIVE"_f32:
+          tcpKeepAlive = getBool(match);
+          break;
       }
     });
 
-    logger::println<logger::INFO>("config::Server::load: configuring cache with\n"
-                                  "{:s} = {}\n"
-                                  "{:s} = {}\n"
-                                  "{:s} = {}\n"
-                                  "{:s} = {}\n"
-                                  "{:s} = {}",
-                                  "HOST", host,
-                                  "PORT", port,
-                                  "TTL", ttl,
-                                  "NO_REPLY", noReply,
-                                  "USE_BINARY", useBinary);
+    logger::println<logger::LOG>("config::Server::load: configuring cache with\n"
+                                 "{:s} = {}\n"
+                                 "{:s} = {}\n"
+                                 "{:s} = {}\n"
+                                 "{:s} = {}\n"
+                                 "{:s} = {}\n"
+                                 "{:s} = {}",
+                                 "HOST", host,
+                                 "PORT", port,
+                                 "TTL", ttl,
+                                 "NO_REPLY", noReply,
+                                 "USE_BINARY", useBinary,
+                                 "TCP_KEEP_ALIVE", tcpKeepAlive);
 
-    return Cache{host, port, ttl, noReply, useBinary};
+    return Cache{host, port, ttl, noReply, useBinary, tcpKeepAlive};
   }
 }

@@ -31,6 +31,7 @@ namespace config {
     const time_t ttl;
     const bool noReply;
     const bool useBinary;
+    const bool tcpKeepAlive;
 
     static Cache load(const std::string & path);
 
@@ -38,12 +39,14 @@ namespace config {
           const unsigned short port,
           const time_t ttl,
           const bool noReply,
-          const bool useBinary)
+          const bool useBinary,
+          const bool tcpKeepAlive)
         : host{std::move(host)},
           port{port},
           ttl{ttl},
           noReply{noReply},
-          useBinary{useBinary} {}
+          useBinary{useBinary},
+          tcpKeepAlive{tcpKeepAlive} {}
 
   };
 }
