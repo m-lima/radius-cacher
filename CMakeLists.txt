@@ -50,6 +50,11 @@ set(CPP_SOURCE_DIR "src")
 set(LIB_DIR ${CMAKE_SOURCE_DIR}/lib)
 
 ##------------------------------------------------------------------------------
+## Options
+##
+#option(VERBOSE_LEVEL "Verbose level for application" 3)
+
+##------------------------------------------------------------------------------
 ## Dependencies
 ##
 
@@ -118,26 +123,27 @@ list(APPEND HEADERS
 ##
 
 add_executable(radius-cacher ${SOURCES} ${HEADERS})
-add_executable(cacher ${CPP_SOURCE_DIR}/cacher.cpp ${CPP_SOURCE_DIR}/config.cpp)
 
 # Add make time constants
 if (DEFINED RC_VERBOSE_LEVEL)
   add_definitions(-DRC_VERBOSE_LEVEL=${RC_VERBOSE_LEVEL})
+  message(STATUS Using verbose level ${RC_VERBOSE_LVEL})
 endif()
 if (DEFINED RC_CALLBACK_COUNT)
   add_definitions(-DRC_CALLBACK_COUNT=${RC_CALLBACK_COUNT})
+  message(STATUS Using callback count ${RC_VERBOSE_LVEL})
 endif()
 if (DEFINED RC_BUFFER_SIZE)
   add_definitions(-DRC_BUFFER_SIZE=${RC_BUFFER_SIZE})
+  message(STATUS Using buffer size ${RC_VERBOSE_LVEL})
 endif()
 if (DEFINED RC_DISABLE_CACHE_OPERATIONS)
-  add_definitions(-DRC_DISABLE_CACHE_OPERATIONS)
+  add_definitions(-DRC_DISABLE_CACHE_OPERATIONS=${RC_DISABLE_CACHE_OPERATIONS})
+  message(STATUS Using disable cache operations ${RC_DISABLE_CACHE_OPERATIONS})
 endif()
 
 # Link with FIND_PACKAGE
 target_link_libraries(radius-cacher PRIVATE ${LIBRARIES})
-target_link_libraries(cacher PRIVATE ${LIBRARIES})
 
 # Add manual includes
 target_include_directories(radius-cacher PRIVATE ${INCLUDE_DIRS})
-target_include_directories(cacher PRIVATE ${INCLUDE_DIRS})
