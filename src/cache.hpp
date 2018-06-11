@@ -22,7 +22,7 @@ public:
     mMemcache.remove(key);
   }
 
-  Cache(const config::Cache & config)
+  explicit Cache(const config::Cache & config)
       : mMemcache{fmt::format("--SERVER={:s}:{:d} {:s} {:s} {:s}",
                               config.host,
                               config.port,
@@ -44,6 +44,8 @@ public:
    * Delete copy constructor
    */
   Cache(const Cache &) = delete;
+
+  Cache(Cache &&) = default;
 
   /**
    * Delete copy
