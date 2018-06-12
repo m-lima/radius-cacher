@@ -88,14 +88,18 @@ private:
                       I callbackBegin,
                       I callbackEnd,
                       const P & parser) {
+#if 6 <= RC_VERBOSE_LEVEL
     logger::println<logger::DEBUG>("Server::Listener::receive: ready to receive");
+#endif
     try {
       socket.async_receive_from(
           boost::asio::buffer(callbackCurrent->mBuffer, Server::BUFFER_SIZE),
           callbackCurrent->mEndpoint,
           [&socket, callbackCurrent, callbackBegin, callbackEnd, parser]
               (const boost::system::error_code & errorCode, std::size_t bytesReceived) {
-            logger::println<logger::DEBUG>("Server::Listener::receive::lambda: packet received");
+#if 6 <= RC_VERBOSE_LEVEL
+           logger::println<logger::DEBUG>("Server::Listener::receive::lambda: packet received");
+#endif
             auto callbackNext = callbackCurrent + 1;
 
             // Infinite loop for listening
@@ -163,19 +167,25 @@ public:
     boost::asio::io_service ioService;
 
     Listener listener{mConfig, ioService, parser};
+#if 6 <= RC_VERBOSE_LEVEL
     logger::println<logger::DEBUG>("Server::run: listener built");
+#endif
 
     if (mConfig.server.threadPoolSize == 1) {
+#if 4 <= RC_VERBOSE_LEVEL
       logger::println<logger::LOG>("Server::run: launching listener on UDP {:d} on a single thread",
                                    mConfig.server.port);
+#endif
       ioService.run();
     } else {
       std::vector<std::thread> threadPool;
       threadPool.reserve(mConfig.server.threadPoolSize);
 
+#if 4 <= RC_VERBOSE_LEVEL
       logger::println<logger::LOG>("Server::run: launching listeners on UDP {:d} on {:d} threads",
                                    mConfig.server.port,
                                    mConfig.server.threadPoolSize);
+#endif
 
       for (unsigned short i = 0; i < mConfig.server.threadPoolSize; ++i) {
         threadPool.emplace_back([&ioService]() { ioService.run(); });
@@ -185,7 +195,9 @@ public:
         t.join();
       }
     }
+#if 4 <= RC_VERBOSE_LEVEL
     logger::println<logger::LOG>("Server::run: server stopped");
+#endif
   }
 
   /**

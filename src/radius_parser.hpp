@@ -64,6 +64,7 @@ public:
     if (header.code != radius::Header::REQUEST) return; // Type is not a request. Break away
 
     auto packetEnd = begin + header.length;
+#if 6 <= RC_VERBOSE_LEVEL
     logger::println<logger::DEBUG>("\n"
                                    "Header--\n"
                                    ":: Code:   {:d}\n"
@@ -72,6 +73,7 @@ public:
                                    header.code,
                                    header.id,
                                    header.length);
+#endif
     begin += radius::Header::SIZE;
 
     // Prepare the cache action and data
@@ -80,11 +82,14 @@ public:
     std::optional<std::string> value;
 
     // Slide through the attributes
+#if 6 <= RC_VERBOSE_LEVEL
     logger::println<logger::DEBUG>("Start attribute iteration");
+#endif
     while (begin < end && begin < packetEnd) {
       auto attribute = radius::Attribute::extract(begin, end);
       auto valueBegin = begin + radius::Attribute::SIZE;
 
+#if 6 <= RC_VERBOSE_LEVEL
       if (attribute.length > radius::Attribute::SIZE) {
         logger::println<logger::DEBUG>("\n"
                                        "Attribute--\n"
@@ -102,44 +107,59 @@ public:
                                        attribute.type,
                                        attribute.length);
       }
+#endif
 
       switch (attribute.type) {
 
         case radius::Attribute::ACCT_STATUS_TYPE:
           if ((action = extractAction(valueBegin, end)) == DO_NOTHING) {
+#if 5 <= RC_VERBOSE_LEVEL
             logger::println<logger::INFO>("Got action DO_NOTHING. Breaking away");
+#endif
             return; // Free the buffer stack and callback ASAP
           }
+#if 6 <= RC_VERBOSE_LEVEL
           logger::println<logger::DEBUG>("Got action {:s}", action == STORE ? "STORE" : "REMOVE");
+#endif
           break;
 
         case radius::Attribute::FRAMED_IP_ADDRESS: {
           auto ip = radius::ValueReader::getAddress(valueBegin, end);
           key = std::make_optional(ip.ip);
+#if 6 <= RC_VERBOSE_LEVEL
           logger::println<logger::DEBUG>("Key = {:s}", *key);
+#endif
         }
           break;
 
         case radius::Attribute::USER_NAME:
           value = std::make_optional(radius::ValueReader::getString(valueBegin, end, begin + attribute.length));
+#if 6 <= RC_VERBOSE_LEVEL
           logger::println<logger::DEBUG>("Value = {:s}", *value);
+#endif
           break;
 
       }
 
       if (key && value && action != DO_NOTHING) {
+#if 6 <= RC_VERBOSE_LEVEL
         logger::println<logger::DEBUG>("Got all fields. Breaking loop");
+#endif
         break; // Break the loop ASAP
       }
       begin += attribute.length;
     }
 
     if (!key || !value) {
+#if 5 <= RC_VERBOSE_LEVEL
       logger::println<logger::INFO>("Missing fields. Breaking away");
+#endif
       return; // Free the buffer stack and callback ASAP
     }
 
+#if 5 <= RC_VERBOSE_LEVEL
     logger::println<logger::INFO>("{:s} {:s} with {:s}", action == STORE ? "Storing" : "Removing", *key, *value);
+#endif
 
     switch (action) {
       case STORE:

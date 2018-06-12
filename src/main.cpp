@@ -67,7 +67,9 @@ int main(int argc, char * argv[]) {
 
   try {
     Server server{{serverConfig, cacheConfig}};
+#if 6 <= RC_VERBOSE_LEVEL
     logger::println<logger::DEBUG>("main: server built");
+#endif
 
     server.run(RadiusParser{});
 

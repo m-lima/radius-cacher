@@ -14,5 +14,7 @@
 [ ]. Reduce repeated code in Config
 [ ]  Remove git submodule and use external project
 [ ]. Get rid of the pointer, if possible
-[ ]  Docker is not capturing logs
+[ ]! Docker is not capturing logs
 [ ]! Traffic filter (consent)
+[ ]  RadiusParser should not know about the cache
+[ ]! Debug logs are taking computing power
