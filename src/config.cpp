@@ -6,6 +6,7 @@
 
 #include <regex>
 #include <fstream>
+#include <cstdlib>
 
 #include <mfl/string.hpp>
 
@@ -29,7 +30,7 @@ namespace {
       while (std::getline(stream, buffer)) {
         std::smatch match;
         if (std::regex_match(buffer, match, regex)) {
-          logger::println<logger::DEBUG>("config::parse: found configuration: {:s} = {:s}",
+          logger::println<logger::DEBUG>("config::parse: found configuration in file: {:s} = {:s}",
                                          match[1],
                                          match[2]);
           callback(match);
@@ -43,21 +44,44 @@ namespace {
     }
   }
 
-  auto getShort(const std::smatch & match) {
-    auto value = std::stoi(match[2]);
-    if (value < 1 || value > 65535) {
-      throw std::runtime_error(fmt::format("{:s} should be between 1 and 65535", match[1]));
+  auto getShort(const std::string & key, const std::string & value) {
+    auto asInt = std::stoi(value);
+    if (asInt < 1 || asInt > 65535) {
+      throw std::runtime_error(fmt::format("{:s} should be between 1 and 65535", key));
     }
-    return static_cast<unsigned short>(value);
+    return static_cast<unsigned short>(asInt);
+  }
+  auto getShort(const std::smatch & match) {
+    return getShort(match[1], match[2]);
   }
 
-  auto getBool(const std::smatch & match) {
+  auto getInt(const std::string & key, const std::string & value) {
+    return std::stoi(value);
+  }
+  auto getInt(const std::smatch & match) {
+    return getInt(match[1], match[2]);
+  }
+
+  auto getString(const std::string & key, const std::string & value) {
+    if (value.empty()) {
+      throw std::runtime_error(fmt::format("{:s} cannot be empty", key));
+    }
+    return value;
+  }
+  auto getString(const std::smatch & match) {
+    return getString(match[1], match[2]);
+  }
+
+  auto getBool(const std::string & key, const std::string & value) {
     using namespace mfl::string::hash32;
-    switch (hash(match[2])) {
+    switch (hash(value)) {
       case "TRUE"_h: return true;
       case "FALSE"_h: return false;
-      default: throw std::runtime_error(fmt::format("{:s} can take TRUE or FALSE only", match[1]));
+      default: throw std::runtime_error(fmt::format("{:s} can take TRUE or FALSE only", key));
     }
+  }
+  auto getBool(const std::smatch & match) {
+    return getBool(match[1], match[2]);
   }
 }
 
@@ -78,10 +102,23 @@ Config::Server Config::Server::load(const std::string & path) {
     switch (hash(match[1])) {
       case "PORT"_h: port = getShort(match); break;
       case "THREAD_POOL_SIZE"_h: threadPoolSize = getShort(match); break;
-      case "KEY"_h: key = match[2]; break;
-      case "VALUE"_h: value = match[2]; break;
+      case "KEY"_h: key = getString(match); break;
+      case "VALUE"_h: value = getString(match); break;
     }
   });
+
+  char * env;
+  env = std::getenv("RADIUS_PORT");
+  if (env) port = getShort("PORT", env);
+
+  env = std::getenv("RADIUS_THREAD_POOL_SIZE");
+  if (env) threadPoolSize = getShort("THREAD_POOL_SIZE", env);
+
+  env = std::getenv("RADIUS_KEY");
+  if (env) key = getString("KEY", env);
+
+  env = std::getenv("RADIUS_VALUE");
+  if (env) value = getString("VALUE", env);
 
   logger::println<logger::LOG>("config::Server::load: configuring server with\n"
                                "{:s} = {}\n"
@@ -112,14 +149,33 @@ Config::Cache Config::Cache::load(const std::string & path) {
 
   parse(path, LINE_REGEX, [&](const std::smatch & match) {
     switch (hash(match[1])) {
-      case "HOST"_h: host = match[2]; break;
+      case "HOST"_h: host = getString(match); break;
       case "PORT"_h: port = getShort(match); break;
-      case "TTL"_h: ttl = std::stoi(match[2]); break;
+      case "TTL"_h: ttl = getInt(match); break;
       case "NO_REPLY"_h: noReply = getBool(match); break;
       case "USE_BINARY"_h: useBinary = getBool(match); break;
       case "TCP_KEEP_ALIVE"_h: tcpKeepAlive = getBool(match); break;
     }
   });
+
+  char * env;
+  env = std::getenv("RADIUS_CACHE_HOST");
+  if (env) host = getString("HOST", env);
+
+  env = std::getenv("RADIUS_CACHE_PORT");
+  if (env) port = getShort("PORT", env);
+
+  env = std::getenv("RADIUS_CACHE_TTL");
+  if (env) ttl = getInt("TTL", env);
+
+  env = std::getenv("RADIUS_CACHE_NO_REPLY");
+  if (env) noReply = getBool("NO_REPLY", env);
+
+  env = std::getenv("RADIUS_CACHE_USE_BINARY");
+  if (env) useBinary = getBool("USE_BINARY", env);
+
+  env = std::getenv("RADIUS_CACHE_TCP_KEEP_ALIVE");
+  if (env) tcpKeepAlive = getBool("TCP_KEEP_ALIVE", env);
 
   logger::println<logger::LOG>("config::Server::load: configuring cache with\n"
                                "{:s} = {}\n"
