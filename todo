@@ -10,7 +10,8 @@
 [ ]  Use syslogger
 [ ]  CMake options
 [ ]! Avoid libmemcached
-[ ]! Read configuration from env vars
+[X]! Read configuration from env vars
+[ ]. Reduce repeated code in Config
 [ ]  Remove git submodule and use external project
 [ ]. Get rid of the pointer, if possible
 [ ]  Docker is not capturing logs
