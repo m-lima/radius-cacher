@@ -18,3 +18,4 @@
 [ ]! Traffic filter (consent)
 [ ]  RadiusParser should not know about the cache
 [ ]! Debug logs are taking computing power
+[ ]  Add tests
