@@ -9,6 +9,7 @@
 #include "cache.hpp"
 #include "radius.hpp"
 #include "logger.hpp"
+#include "consent_filter.hpp"
 
 class RadiusParser {
 private:
@@ -18,7 +19,8 @@ private:
   enum Action {
     DO_NOTHING,
     STORE,
-    REMOVE
+    REMOVE,
+    FILTER
   };
 
   /**
@@ -43,7 +45,19 @@ private:
     }
   }
 
+  const ConsentFilter mFilter;
+
 public:
+
+  /**
+   * Build the parser with a consent filter
+   *
+   * The parser must be built with the filter to avoid processing of packets before
+   * the filter is ready
+   */
+  explicit RadiusParser(const Config::Server & config)
+      : mFilter{config} {}
+
   /**
    * Parse the incoming buffer for packet and call for action
    *
@@ -134,6 +148,10 @@ public:
 
         case radius::Attribute::USER_NAME:
           value = std::make_optional(radius::ValueReader::getString(valueBegin, end, begin + attribute.length));
+          if (mFilter.contains(std::stoll(*value))) {
+            logger::println<logger::DEBUG>("User {} has opted-out", *value);
+            return; // User opted-out; Free the buffer stack and callback ASAP
+          }
 #if 6 <= RC_VERBOSE_LEVEL
           logger::println<logger::DEBUG>("Value = {:s}", *value);
 #endif

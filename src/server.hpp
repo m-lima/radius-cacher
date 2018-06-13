@@ -116,7 +116,7 @@ private:
                                parser);
           }
       );
-    } catch (std::exception & e) {
+    } catch (const std::exception & e) {
       logger::errPrintln<logger::WARN>("Server::Listener::receive: "
                                        "exception caught when executing receive: {:s}",
                                        e.what());
@@ -153,9 +153,6 @@ private:
   };
 
 public:
-  explicit Server(Config config)
-      : mConfig{std::move(config)} {}
-
   /**
    * Starts listening and offloading packets to P. This method will block
    *
@@ -163,31 +160,31 @@ public:
    * @param parser the packet parser
    */
   template <typename P>
-  void run(const P & parser) {
+  void run(const Config & config, const P & parser) {
     boost::asio::io_service ioService;
 
-    Listener listener{mConfig, ioService, parser};
+    Listener listener{config, ioService, parser};
 #if 6 <= RC_VERBOSE_LEVEL
     logger::println<logger::DEBUG>("Server::run: listener built");
 #endif
 
-    if (mConfig.server.threadPoolSize == 1) {
+    if (config.server.threadPoolSize == 1) {
 #if 4 <= RC_VERBOSE_LEVEL
       logger::println<logger::LOG>("Server::run: launching listener on UDP {:d} on a single thread",
-                                   mConfig.server.port);
+                                   config.server.port);
 #endif
       ioService.run();
     } else {
       std::vector<std::thread> threadPool;
-      threadPool.reserve(mConfig.server.threadPoolSize);
+      threadPool.reserve(config.server.threadPoolSize);
 
 #if 4 <= RC_VERBOSE_LEVEL
       logger::println<logger::LOG>("Server::run: launching listeners on UDP {:d} on {:d} threads",
-                                   mConfig.server.port,
-                                   mConfig.server.threadPoolSize);
+                                   config.server.port,
+                                   config.server.threadPoolSize);
 #endif
 
-      for (unsigned short i = 0; i < mConfig.server.threadPoolSize; ++i) {
+      for (unsigned short i = 0; i < config.server.threadPoolSize; ++i) {
         threadPool.emplace_back([&ioService]() { ioService.run(); });
       }
 
@@ -199,6 +196,11 @@ public:
     logger::println<logger::LOG>("Server::run: server stopped");
 #endif
   }
+
+  /**
+   * Empty default constructor
+   */
+  Server() = default;
 
   /**
    * Must declare since compiler will omit due to copy constructor deletion
@@ -214,7 +216,4 @@ public:
    * Delete copy
    */
   void operator=(const Server &) = delete;
-
-private:
-  const Config mConfig;
 };

@@ -5,17 +5,11 @@
 #include <string>
 #include <vector>
 #include <thread>
-#include <stdexcept>
-#include <memory>
 
 #include <mfl/out.hpp>
 #include <mfl/args.hpp>
 
-#include <boost/asio.hpp>
-
 #include "server.hpp"
-#include "config.hpp"
-#include "logger.hpp"
 #include "radius_parser.hpp"
 
 /**
@@ -59,21 +53,20 @@ int main(int argc, char * argv[]) {
       cacheConfig = std::string{aCacheConfig};
     }
 
-  } catch (std::exception & ex) {
+  } catch (const std::exception & ex) {
     logger::errPrintln<logger::FATAL>("main: error parsing arguments: {:s}", ex.what());
     printUsage(stderr);
     return -1;
   }
 
   try {
-    Server server{{serverConfig, cacheConfig}};
-#if 6 <= RC_VERBOSE_LEVEL
-    logger::println<logger::DEBUG>("main: server built");
-#endif
+    Config config{serverConfig, cacheConfig};
+    logger::println<logger::DEBUG>("main: configuration built");
 
-    server.run(RadiusParser{});
+    Server server;
+    server.run(config, RadiusParser{config.server});
 
-  } catch (std::exception & ex) {
+  } catch (const std::exception & ex) {
     logger::println<logger::FATAL>("main: terminating due to exception: {}", ex.what());
     return -1;
   }

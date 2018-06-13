@@ -6,7 +6,6 @@
 
 #include <regex>
 #include <fstream>
-#include <cstdlib>
 
 #include <mfl/string.hpp>
 
@@ -36,7 +35,7 @@ namespace {
           callback(match);
         }
       }
-    } catch (std::exception & ex) {
+    } catch (const std::exception & ex) {
       logger::println<logger::FATAL>("config::parse: configuration file \"{:s}\" is invalid: {}",
                                      path,
                                      ex.what());
@@ -87,16 +86,18 @@ namespace {
 
 Config::Server Config::Server::load(const std::string & path) {
   using namespace mfl::string::hash32;
-  static const std::regex LINE_REGEX = std::regex("^[[:space:]]*"
-                                                  "(PORT|THREAD_POOL_SIZE|KEY|VALUE)"
-                                                  "[[:space:]]*=[[:space:]]*"
-                                                  "(.+)"
-                                                  "[[:space:]]*$");
+  static const std::regex LINE_REGEX{"^[[:space:]]*"
+                                     "(PORT|THREAD_POOL_SIZE|KEY|VALUE|CONSENT_FILE|CONSENT_REFRESH_MINUTES)"
+                                     "[[:space:]]*=[[:space:]]*"
+                                     "(.+)"
+                                     "[[:space:]]*$"};
 
   unsigned short port = 1813;
   unsigned short threadPoolSize = 8;
   std::string key = "FRAMED_IP_ADDRESS";
   std::string value = "USER_NAME";
+  std::string consentFile = "/etc/radius-cacher/consent.csv";
+  unsigned short consentRefreshMinutes = 45;
 
   parse(path, LINE_REGEX, [&](const std::smatch & match) {
     switch (hash(match[1])) {
@@ -104,6 +105,8 @@ Config::Server Config::Server::load(const std::string & path) {
       case "THREAD_POOL_SIZE"_h: threadPoolSize = getShort(match); break;
       case "KEY"_h: key = getString(match); break;
       case "VALUE"_h: value = getString(match); break;
+      case "CONSENT_FILE"_h: value = getString(match); break;
+      case "CONSENT_REFRESH_MINUTES"_h: value = getString(match); break;
     }
   });
 
@@ -120,7 +123,15 @@ Config::Server Config::Server::load(const std::string & path) {
   env = std::getenv("RADIUS_VALUE");
   if (env) value = getString("VALUE", env);
 
+  env = std::getenv("RADIUS_CONSENT_FILE");
+  if (env) consentFile = getString("CONSENT_FILE", env);
+
+  env = std::getenv("RADIUS_CONSENT_REFRESH_MINUTES");
+  if (env) consentRefreshMinutes = getShort("CONSENT_REFRESH_MINUTES", env);
+
   logger::println<logger::LOG>("config::Server::load: configuring server with\n"
+                               "{:s} = {}\n"
+                               "{:s} = {}\n"
                                "{:s} = {}\n"
                                "{:s} = {}\n"
                                "{:s} = {}\n"
@@ -128,17 +139,21 @@ Config::Server Config::Server::load(const std::string & path) {
                                "PORT", port,
                                "THREAD_POOL_SIZE", threadPoolSize,
                                "KEY", key,
-                               "VALUE", value);
-  return {port, threadPoolSize, key, value};
+                               "VALUE", value,
+                               "CONSENT_FILE", consentFile,
+                               "CONSENT_REFRESH_MINUTES", consentRefreshMinutes
+  );
+
+  return {port, threadPoolSize, key, value, consentFile, consentRefreshMinutes};
 }
 
 Config::Cache Config::Cache::load(const std::string & path) {
   using namespace mfl::string::hash32;
-  static const std::regex LINE_REGEX = std::regex("^[[:space:]]*"
-                                                  "(HOST|PORT|TTL|NO_REPLY|USE_BINARY|TCP_KEEP_ALIVE)"
-                                                  "[[:space:]]*=[[:space:]]*"
-                                                  "(.+)"
-                                                  "[[:space:]]*$");
+  static const std::regex LINE_REGEX{"^[[:space:]]*"
+                                     "(HOST|PORT|TTL|NO_REPLY|USE_BINARY|TCP_KEEP_ALIVE)"
+                                     "[[:space:]]*=[[:space:]]*"
+                                     "(.+)"
+                                     "[[:space:]]*$"};
 
   std::string host = "localhost";
   unsigned short port = 11211;

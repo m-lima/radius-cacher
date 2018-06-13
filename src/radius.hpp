@@ -57,7 +57,7 @@ namespace radius {
     };
 #pragma pop()
 
-    Header(const HeaderRaw * raw)
+    explicit Header(const HeaderRaw * raw)
         : code{raw->code},
           id{raw->id},
           length{static_cast<std::uint16_t>((raw->length[0] << 8u) | (raw->length[1]))},
@@ -124,7 +124,7 @@ namespace radius {
     };
 #pragma pop()
 
-    Attribute(const AttributeRaw * raw)
+    explicit Attribute(const AttributeRaw * raw)
         : type{raw->type},
           length{raw->length} {}
 
@@ -174,7 +174,7 @@ namespace radius {
     };
 #pragma pack(pop)
 
-    IPv4(const IPv4Raw * raw)
+    explicit IPv4(const IPv4Raw * raw)
         : ip{fmt::format("{:d}.{:d}.{:d}.{:d}",
                          raw->octets[0],
                          raw->octets[1],

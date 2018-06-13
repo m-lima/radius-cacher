@@ -52,6 +52,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/findcmake")
 
 # Set base directories
 set(CPP_SOURCE_DIR "src")
+set(CPP_TEST_DIR "test")
 set(LIB_DIR ${CMAKE_SOURCE_DIR}/lib)
 
 ##------------------------------------------------------------------------------
@@ -112,6 +113,7 @@ endif (NOT LIBMEMCACHED_FOUND)
 list(APPEND SOURCES
     ${CPP_SOURCE_DIR}/main.cpp
     ${CPP_SOURCE_DIR}/config.cpp
+    ${CPP_SOURCE_DIR}/consent_filter.cpp
   )
 
 list(APPEND HEADERS
@@ -121,6 +123,7 @@ list(APPEND HEADERS
     ${CPP_SOURCE_DIR}/logger.hpp
     ${CPP_SOURCE_DIR}/config.hpp
     ${CPP_SOURCE_DIR}/radius_parser.hpp
+    ${CPP_SOURCE_DIR}/consent_filter.hpp
     )
 
 ##------------------------------------------------------------------------------
@@ -144,3 +147,17 @@ target_link_libraries(radius-cacher PRIVATE ${LIBRARIES})
 
 # Add manual includes
 target_include_directories(radius-cacher PRIVATE ${INCLUDE_DIRS})
+
+##------------------------------------------------------------------------------
+## Tests
+##
+
+list(APPEND TESTS
+    ${CPP_TEST_DIR}/test_main.cpp
+    ${CPP_TEST_DIR}/test_config.cpp
+    ${CPP_TEST_DIR}/test_consent_filter.cpp
+)
+
+enable_testing()
+add_executable(radius-cacher-tests ${TESTS})
+add_test(NAME radius-cahcer-test COMMAND radius-cacher-tests)
