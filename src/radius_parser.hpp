@@ -45,7 +45,7 @@ private:
     }
   }
 
-  const ConsentFilter mFilter;
+  const std::shared_ptr<ConsentFilter> mFilter;
 
 public:
 
@@ -55,8 +55,7 @@ public:
    * The parser must be built with the filter to avoid processing of packets before
    * the filter is ready
    */
-  explicit RadiusParser(const Config::Server & config)
-      : mFilter{config} {}
+  explicit RadiusParser(const Config::Server & config) : mFilter{std::make_shared<ConsentFilter>(config)} {}
 
   /**
    * Parse the incoming buffer for packet and call for action
@@ -148,7 +147,7 @@ public:
 
         case radius::Attribute::USER_NAME:
           value = std::make_optional(radius::ValueReader::getString(valueBegin, end, begin + attribute.length));
-          if (mFilter.contains(std::stoll(*value))) {
+          if (mFilter->contains(std::stoll(*value))) {
             logger::println<logger::DEBUG>("User {} has opted-out", *value);
             return; // User opted-out; Free the buffer stack and callback ASAP
           }
@@ -156,7 +155,6 @@ public:
           logger::println<logger::DEBUG>("Value = {:s}", *value);
 #endif
           break;
-
       }
 
       if (key && value && action != DO_NOTHING) {

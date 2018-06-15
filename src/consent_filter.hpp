@@ -39,6 +39,11 @@ public:
   ConsentFilter(const Config::Server & config);
   bool contains(std::uint64_t value) const;
 
+  ~ConsentFilter() = default;
+  ConsentFilter(const ConsentFilter &) = delete;
+  ConsentFilter(ConsentFilter &&) = delete;
+  void operator=(const ConsentFilter &) = delete;
+
 };
 
 

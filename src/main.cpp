@@ -64,7 +64,9 @@ int main(int argc, char * argv[]) {
     logger::println<logger::DEBUG>("main: configuration built");
 
     Server server;
-    server.run(config, RadiusParser{config.server});
+    RadiusParser parser{config.server};
+//    server.run(config, RadiusParser{});
+    server.run(config, parser);
 
   } catch (const std::exception & ex) {
     logger::println<logger::FATAL>("main: terminating due to exception: {}", ex.what());

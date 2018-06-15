@@ -1,5 +1,6 @@
  X  :Done
  O  :Done but can be extended
+ @  :Will not do
  !  :Important
  .  :Minor
 
@@ -8,7 +9,7 @@
 [O]  Map AVP number to name
 [X]  Timestamp on logs
 [ ]  Use syslogger
-[ ]  CMake options
+[@]  CMake options
 [ ]! Avoid libmemcached
 [X]! Read configuration from env vars
 [ ]. Reduce repeated code in Config
@@ -20,3 +21,4 @@
 [ ]! Debug logs are taking computing power
 [ ]  Add tests
 [ ]  Make Config more DRY
+[ ]  Clang-tidy

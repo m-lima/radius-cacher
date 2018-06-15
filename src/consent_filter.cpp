@@ -13,12 +13,12 @@
 #include "logger.hpp"
 
 namespace {
-  const std::regex REGEX{("([[:digit:]]+)")};
+  const std::regex REGEX{("\"([[:digit:]]+)\"")};
 }
 
 ConsentFilter::ConsentFilter(const Config::Server & config)
     : mConsentFilePath{config.consentFile} {
-//  reload();
+  reload();
 
 //  boost::asio::io_service ioService;
 //
@@ -48,7 +48,7 @@ void ConsentFilter::reload() {
       std::smatch match;
       if (std::regex_match(buffer, match, REGEX)) {
         try {
-          mConsents[!mCurrent].emplace_back(std::stoi(match[1]));
+          mConsents[!mCurrent].emplace_back(std::stoll(match[1]));
         } catch (const std::exception & ex) {
           logger::println<logger::WARN>("ConsentFilter::reload: failed to parse value {:s}: {}",
                                         match[1],
@@ -62,5 +62,10 @@ void ConsentFilter::reload() {
 
   std::sort(mConsents[!mCurrent].begin(), mConsents[!mCurrent].end());
   mCurrent.swap();
+
+  logger::println<logger::INFO>("Enabled new filter");
+  for (const auto v : mConsents[mCurrent]) {
+    logger::println<logger::DEBUG>("Filtering {:d}", v);
+  }
 }
 

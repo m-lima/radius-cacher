@@ -16,5 +16,10 @@ CMakeLists.txt.user
 # Build
 build
 
+# Output
+lib
+bin
+include
+
 # External projects
-lib/*/pack
+ext/*/pack
