@@ -36,8 +36,7 @@ void ConsentFilter::reload() {
   std::ifstream stream(mConsentFilePath);
 
   if (!stream.is_open()) {
-    logger::println<logger::ERROR>("ConsentFilter::reload: could not load configuration file \"{:s}\".",
-                                   mConsentFilePath);
+    LOG(logger::ERROR, "ConsentFilter::reload: could not load configuration file \"{:s}\".", mConsentFilePath);
   }
 
   mConsents[!mCurrent].clear();
@@ -50,20 +49,20 @@ void ConsentFilter::reload() {
         try {
           mConsents[!mCurrent].emplace_back(std::stoll(match[1]));
         } catch (const std::exception & ex) {
-          logger::println<logger::WARN>("ConsentFilter::reload: failed to parse value {:s}: {}",
+          LOG(logger::WARN, "ConsentFilter::reload: failed to parse value {:s}: {}",
                                         match[1],
                                         ex.what());
         }
       }
     }
   } catch (const std::exception & ex) {
-    logger::println<logger::WARN>("ConsentFilter::reload: exception while reloadin consent: {}", ex.what());
+    LOG(logger::WARN, "ConsentFilter::reload: exception while reloadin consent: {}", ex.what());
   }
 
   std::sort(mConsents[!mCurrent].begin(), mConsents[!mCurrent].end());
   mCurrent.swap();
 
-  logger::println<logger::INFO>("Enabled new filter");
+  LOG(logger::INFO, "Enabled new filter");
   for (const auto v : mConsents[mCurrent]) {
     logger::println<logger::DEBUG>("Filtering {:d}", v);
   }

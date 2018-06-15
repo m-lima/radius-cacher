@@ -18,8 +18,8 @@ namespace {
     std::ifstream stream{path};
 
     if (!stream.is_open()) {
-      logger::println<logger::ERROR>("config::parse: could not load configuration file \"{:s}\"."
-                                     " Using default configuration", path);
+      LOG(logger::ERROR, "config::parse: could not load configuration file \"{:s}\"."
+                         " Using default configuration", path);
       return;
     }
 
@@ -29,16 +29,16 @@ namespace {
       while (std::getline(stream, buffer)) {
         std::smatch match;
         if (std::regex_match(buffer, match, regex)) {
-          logger::println<logger::DEBUG>("config::parse: found configuration in file: {:s} = {:s}",
+          LOG(logger::DEBUG, "config::parse: found configuration in file: {:s} = {:s}",
                                          match[1],
                                          match[2]);
           callback(match);
         }
       }
     } catch (const std::exception & ex) {
-      logger::println<logger::FATAL>("config::parse: configuration file \"{:s}\" is invalid: {}",
-                                     path,
-                                     ex.what());
+      LOG(logger::FATAL, "config::parse: configuration file \"{:s}\" is invalid: {}",
+          path,
+          ex.what());
       throw std::runtime_error{ex.what()};
     }
   }
@@ -129,7 +129,7 @@ Config::Server Config::Server::load(const std::string & path) {
   env = std::getenv("RADIUS_CONSENT_REFRESH_MINUTES");
   if (env) consentRefreshMinutes = getShort("CONSENT_REFRESH_MINUTES", env);
 
-  logger::println<logger::LOG>("config::Server::load: configuring server with\n"
+  LOG(logger::LOG, "config::Server::load: configuring server with\n"
                                "{:s} = {}\n"
                                "{:s} = {}\n"
                                "{:s} = {}\n"
@@ -192,7 +192,7 @@ Config::Cache Config::Cache::load(const std::string & path) {
   env = std::getenv("RADIUS_CACHE_TCP_KEEP_ALIVE");
   if (env) tcpKeepAlive = getBool("TCP_KEEP_ALIVE", env);
 
-  logger::println<logger::LOG>("config::Server::load: configuring cache with\n"
+  LOG(logger::LOG, "config::Server::load: configuring cache with\n"
                                "{:s} = {}\n"
                                "{:s} = {}\n"
                                "{:s} = {}\n"

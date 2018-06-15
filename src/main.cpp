@@ -54,14 +54,14 @@ int main(int argc, char * argv[]) {
     }
 
   } catch (const std::exception & ex) {
-    logger::errPrintln<logger::FATAL>("main: error parsing arguments: {:s}", ex.what());
+    LOG(logger::FATAL, "main: error parsing arguments: {:s}", ex.what());
     printUsage(stderr);
     return -1;
   }
 
   try {
     Config config{serverConfig, cacheConfig};
-    logger::println<logger::DEBUG>("main: configuration built");
+    LOG(logger::DEBUG, "main: configuration built");
 
     Server server;
     RadiusParser parser{config.server};
@@ -69,7 +69,7 @@ int main(int argc, char * argv[]) {
     server.run(config, parser);
 
   } catch (const std::exception & ex) {
-    logger::println<logger::FATAL>("main: terminating due to exception: {}", ex.what());
+    LOG(logger::FATAL, "main: terminating due to exception: {}", ex.what());
     return -1;
   }
 

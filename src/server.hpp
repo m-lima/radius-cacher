@@ -88,18 +88,14 @@ private:
                       I callbackBegin,
                       I callbackEnd,
                       const P & parser) {
-#if 6 <= RC_VERBOSE_LEVEL
-    logger::println<logger::DEBUG>("Server::Listener::receive: ready to receive");
-#endif
+    LOG(logger::DEBUG, "Server::Listener::receive: ready to receive");
     try {
       socket.async_receive_from(
           boost::asio::buffer(callbackCurrent->mBuffer, Server::BUFFER_SIZE),
           callbackCurrent->mEndpoint,
           [&socket, callbackCurrent, callbackBegin, callbackEnd, parser]
               (const boost::system::error_code & errorCode, std::size_t bytesReceived) {
-#if 6 <= RC_VERBOSE_LEVEL
-           logger::println<logger::DEBUG>("Server::Listener::receive::lambda: packet received");
-#endif
+           LOG(logger::DEBUG, "Server::Listener::receive::lambda: packet received");
             auto callbackNext = callbackCurrent + 1;
 
             // Infinite loop for listening
@@ -117,9 +113,9 @@ private:
           }
       );
     } catch (const std::exception & e) {
-      logger::errPrintln<logger::WARN>("Server::Listener::receive: "
-                                       "exception caught when executing receive: {:s}",
-                                       e.what());
+      LOG(logger::WARN, "Server::Listener::receive: "
+                         "exception caught when executing receive: {:s}",
+                         e.what());
     }
   }
 
@@ -164,25 +160,18 @@ public:
     boost::asio::io_service ioService;
 
     Listener listener{config, ioService, parser};
-#if 6 <= RC_VERBOSE_LEVEL
-    logger::println<logger::DEBUG>("Server::run: listener built");
-#endif
+    LOG(logger::DEBUG, "Server::run: listener built");
 
     if (config.server.threadPoolSize == 1) {
-#if 4 <= RC_VERBOSE_LEVEL
-      logger::println<logger::LOG>("Server::run: launching listener on UDP {:d} on a single thread",
-                                   config.server.port);
-#endif
+      LOG(logger::LOG, "Server::run: launching listener on UDP {:d} on a single thread", config.server.port);
       ioService.run();
     } else {
       std::vector<std::thread> threadPool;
       threadPool.reserve(config.server.threadPoolSize);
 
-#if 4 <= RC_VERBOSE_LEVEL
-      logger::println<logger::LOG>("Server::run: launching listeners on UDP {:d} on {:d} threads",
+      LOG(logger::LOG, "Server::run: launching listeners on UDP {:d} on {:d} threads",
                                    config.server.port,
                                    config.server.threadPoolSize);
-#endif
 
       for (unsigned short i = 0; i < config.server.threadPoolSize; ++i) {
         threadPool.emplace_back([&ioService]() { ioService.run(); });
@@ -192,9 +181,7 @@ public:
         t.join();
       }
     }
-#if 4 <= RC_VERBOSE_LEVEL
-    logger::println<logger::LOG>("Server::run: server stopped");
-#endif
+    LOG(logger::LOG, "Server::run: server stopped");
   }
 
   /**

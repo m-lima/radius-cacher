@@ -125,4 +125,12 @@ namespace logger {
   inline void errPrintln() {
     println<level>(stderr);
   }
+
+#define LOG(level, ...) if constexpr (level <= RC_VERBOSE_LEVEL) { \
+    if constexpr (level <= logger::WARN && level > 0) { \
+      logger::errPrintln<level>(__VA_ARGS__); \
+    } else { \
+      logger::println<level>(__VA_ARGS__); \
+    } \
+  }
 }
