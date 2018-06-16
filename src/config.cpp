@@ -29,16 +29,12 @@ namespace {
       while (std::getline(stream, buffer)) {
         std::smatch match;
         if (std::regex_match(buffer, match, regex)) {
-          LOG(logger::DEBUG, "config::parse: found configuration in file: {:s} = {:s}",
-                                         match[1],
-                                         match[2]);
+          LOG(logger::DEBUG, "config::parse: found configuration in file: {:s} = {:s}", match[1], match[2]);
           callback(match);
         }
       }
     } catch (const std::exception & ex) {
-      LOG(logger::FATAL, "config::parse: configuration file \"{:s}\" is invalid: {}",
-          path,
-          ex.what());
+      LOG(logger::FATAL, "config::parse: configuration file \"{:s}\" is invalid: {}", path, ex.what());
       throw std::runtime_error{ex.what()};
     }
   }
@@ -50,6 +46,7 @@ namespace {
     }
     return static_cast<unsigned short>(asInt);
   }
+
   auto getShort(const std::smatch & match) {
     return getShort(match[1], match[2]);
   }
@@ -57,6 +54,7 @@ namespace {
   auto getInt(const std::string & key, const std::string & value) {
     return std::stoi(value);
   }
+
   auto getInt(const std::smatch & match) {
     return getInt(match[1], match[2]);
   }
@@ -67,6 +65,7 @@ namespace {
     }
     return value;
   }
+
   auto getString(const std::smatch & match) {
     return getString(match[1], match[2]);
   }
@@ -79,6 +78,7 @@ namespace {
       default: throw std::runtime_error(fmt::format("{:s} can take TRUE or FALSE only", key));
     }
   }
+
   auto getBool(const std::smatch & match) {
     return getBool(match[1], match[2]);
   }
@@ -101,12 +101,24 @@ Config::Server Config::Server::load(const std::string & path) {
 
   parse(path, LINE_REGEX, [&](const std::smatch & match) {
     switch (hash(match[1])) {
-      case "PORT"_h: port = getShort(match); break;
-      case "THREAD_POOL_SIZE"_h: threadPoolSize = getShort(match); break;
-      case "KEY"_h: key = getString(match); break;
-      case "VALUE"_h: value = getString(match); break;
-      case "CONSENT_FILE"_h: value = getString(match); break;
-      case "CONSENT_REFRESH_MINUTES"_h: value = getString(match); break;
+      case "PORT"_h:
+        port = getShort(match);
+        break;
+      case "THREAD_POOL_SIZE"_h:
+        threadPoolSize = getShort(match);
+        break;
+      case "KEY"_h:
+        key = getString(match);
+        break;
+      case "VALUE"_h:
+        value = getString(match);
+        break;
+      case "CONSENT_FILE"_h:
+        value = getString(match);
+        break;
+      case "CONSENT_REFRESH_MINUTES"_h:
+        value = getString(match);
+        break;
     }
   });
 
@@ -129,19 +141,20 @@ Config::Server Config::Server::load(const std::string & path) {
   env = std::getenv("RADIUS_CONSENT_REFRESH_MINUTES");
   if (env) consentRefreshMinutes = getShort("CONSENT_REFRESH_MINUTES", env);
 
-  LOG(logger::LOG, "config::Server::load: configuring server with\n"
-                               "{:s} = {}\n"
-                               "{:s} = {}\n"
-                               "{:s} = {}\n"
-                               "{:s} = {}\n"
-                               "{:s} = {}\n"
-                               "{:s} = {}",
-                               "PORT", port,
-                               "THREAD_POOL_SIZE", threadPoolSize,
-                               "KEY", key,
-                               "VALUE", value,
-                               "CONSENT_FILE", consentFile,
-                               "CONSENT_REFRESH_MINUTES", consentRefreshMinutes
+  LOG(logger::LOG,
+      "config::Server::load: configuring server with\n"
+      "{:s} = {}\n"
+      "{:s} = {}\n"
+      "{:s} = {}\n"
+      "{:s} = {}\n"
+      "{:s} = {}\n"
+      "{:s} = {}",
+      "PORT", port,
+      "THREAD_POOL_SIZE", threadPoolSize,
+      "KEY", key,
+      "VALUE", value,
+      "CONSENT_FILE", consentFile,
+      "CONSENT_REFRESH_MINUTES", consentRefreshMinutes
   );
 
   return {port, threadPoolSize, key, value, consentFile, consentRefreshMinutes};
@@ -164,12 +177,24 @@ Config::Cache Config::Cache::load(const std::string & path) {
 
   parse(path, LINE_REGEX, [&](const std::smatch & match) {
     switch (hash(match[1])) {
-      case "HOST"_h: host = getString(match); break;
-      case "PORT"_h: port = getShort(match); break;
-      case "TTL"_h: ttl = getInt(match); break;
-      case "NO_REPLY"_h: noReply = getBool(match); break;
-      case "USE_BINARY"_h: useBinary = getBool(match); break;
-      case "TCP_KEEP_ALIVE"_h: tcpKeepAlive = getBool(match); break;
+      case "HOST"_h:
+        host = getString(match);
+        break;
+      case "PORT"_h:
+        port = getShort(match);
+        break;
+      case "TTL"_h:
+        ttl = getInt(match);
+        break;
+      case "NO_REPLY"_h:
+        noReply = getBool(match);
+        break;
+      case "USE_BINARY"_h:
+        useBinary = getBool(match);
+        break;
+      case "TCP_KEEP_ALIVE"_h:
+        tcpKeepAlive = getBool(match);
+        break;
     }
   });
 
@@ -192,19 +217,20 @@ Config::Cache Config::Cache::load(const std::string & path) {
   env = std::getenv("RADIUS_CACHE_TCP_KEEP_ALIVE");
   if (env) tcpKeepAlive = getBool("TCP_KEEP_ALIVE", env);
 
-  LOG(logger::LOG, "config::Server::load: configuring cache with\n"
-                               "{:s} = {}\n"
-                               "{:s} = {}\n"
-                               "{:s} = {}\n"
-                               "{:s} = {}\n"
-                               "{:s} = {}\n"
-                               "{:s} = {}",
-                               "HOST", host,
-                               "PORT", port,
-                               "TTL", ttl,
-                               "NO_REPLY", noReply,
-                               "USE_BINARY", useBinary,
-                               "TCP_KEEP_ALIVE", tcpKeepAlive);
+  LOG(logger::LOG,
+      "config::Server::load: configuring cache with\n"
+      "{:s} = {}\n"
+      "{:s} = {}\n"
+      "{:s} = {}\n"
+      "{:s} = {}\n"
+      "{:s} = {}\n"
+      "{:s} = {}",
+      "HOST", host,
+      "PORT", port,
+      "TTL", ttl,
+      "NO_REPLY", noReply,
+      "USE_BINARY", useBinary,
+      "TCP_KEEP_ALIVE", tcpKeepAlive);
 
   return {host, port, ttl, noReply, useBinary, tcpKeepAlive};
 }

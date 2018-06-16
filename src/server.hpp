@@ -95,7 +95,7 @@ private:
           callbackCurrent->mEndpoint,
           [&socket, callbackCurrent, callbackBegin, callbackEnd, parser]
               (const boost::system::error_code & errorCode, std::size_t bytesReceived) {
-           LOG(logger::DEBUG, "Server::Listener::receive::lambda: packet received");
+            LOG(logger::DEBUG, "Server::Listener::receive::lambda: packet received");
             auto callbackNext = callbackCurrent + 1;
 
             // Infinite loop for listening
@@ -113,9 +113,7 @@ private:
           }
       );
     } catch (const std::exception & e) {
-      LOG(logger::WARN, "Server::Listener::receive: "
-                         "exception caught when executing receive: {:s}",
-                         e.what());
+      LOG(logger::WARN, "Server::Listener::receive: exception caught when executing receive: {:s}", e.what());
     }
   }
 
@@ -169,9 +167,10 @@ public:
       std::vector<std::thread> threadPool;
       threadPool.reserve(config.server.threadPoolSize);
 
-      LOG(logger::LOG, "Server::run: launching listeners on UDP {:d} on {:d} threads",
-                                   config.server.port,
-                                   config.server.threadPoolSize);
+      LOG(logger::LOG,
+          "Server::run: launching listeners on UDP {:d} on {:d} threads",
+          config.server.port,
+          config.server.threadPoolSize);
 
       for (unsigned short i = 0; i < config.server.threadPoolSize; ++i) {
         threadPool.emplace_back([&ioService]() { ioService.run(); });

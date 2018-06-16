@@ -77,14 +77,15 @@ public:
     if (header.code != radius::Header::REQUEST) return; // Type is not a request. Break away
 
     auto packetEnd = begin + header.length;
-    LOG(logger::DEBUG, "\n"
-                                   "Header--\n"
-                                   ":: Code:   {:d}\n"
-                                   ":: ID:     {:d}\n"
-                                   ":: Length: {:d}",
-                                   header.code,
-                                   header.id,
-                                   header.length);
+    LOG(logger::DEBUG,
+        "\n"
+        "Header--\n"
+        ":: Code:   {:d}\n"
+        ":: ID:     {:d}\n"
+        ":: Length: {:d}",
+        header.code,
+        header.id,
+        header.length);
     begin += radius::Header::SIZE;
 
     // Prepare the cache action and data
@@ -99,21 +100,23 @@ public:
       auto valueBegin = begin + radius::Attribute::SIZE;
 
       if (attribute.length > radius::Attribute::SIZE) {
-        LOG(logger::DEBUG, "\n"
-                                       "Attribute--\n"
-                                       ":: Type:   {:d}\n"
-                                       ":: Length: {:d}\n"
-                                       ":: Value:  {:s}",
-                                       attribute.type,
-                                       attribute.length,
-                                       radius::ValueReader::getString(valueBegin, end, begin + attribute.length));
+        LOG(logger::DEBUG,
+            "\n"
+            "Attribute--\n"
+            ":: Type:   {:d}\n"
+            ":: Length: {:d}\n"
+            ":: Value:  {:s}",
+            attribute.type,
+            attribute.length,
+            radius::ValueReader::getString(valueBegin, end, begin + attribute.length));
       } else {
-        LOG(logger::DEBUG, "\n"
-                                       "Attribute--\n"
-                                       ":: Type:   {:d}\n"
-                                       ":: Length: {:d}",
-                                       attribute.type,
-                                       attribute.length);
+        LOG(logger::DEBUG,
+            "\n"
+            "Attribute--\n"
+            ":: Type:   {:d}\n"
+            ":: Length: {:d}",
+            attribute.type,
+            attribute.length);
       }
 
       switch (attribute.type) {

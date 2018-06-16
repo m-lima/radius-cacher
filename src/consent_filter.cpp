@@ -49,14 +49,12 @@ void ConsentFilter::reload() {
         try {
           mConsents[!mCurrent].emplace_back(std::stoll(match[1]));
         } catch (const std::exception & ex) {
-          LOG(logger::WARN, "ConsentFilter::reload: failed to parse value {:s}: {}",
-                                        match[1],
-                                        ex.what());
+          LOG(logger::WARN, "ConsentFilter::reload: failed to parse value {:s}: {}", match[1], ex.what());
         }
       }
     }
   } catch (const std::exception & ex) {
-    LOG(logger::WARN, "ConsentFilter::reload: exception while reloadin consent: {}", ex.what());
+    LOG(logger::WARN, "ConsentFilter::reload: exception while reloading consent: {}", ex.what());
   }
 
   std::sort(mConsents[!mCurrent].begin(), mConsents[!mCurrent].end());
