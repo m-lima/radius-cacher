@@ -65,7 +65,7 @@ set(EXT_DIR ${CMAKE_SOURCE_DIR}/ext)
 ##
 
 ## MFL
-add_subdirectory("${EXT_DIR}/lib/mfl.cmake")
+include("${EXT_DIR}/mfl/mfl.cmake")
 list(APPEND LIBRARIES mfl)
 
 # Threads
