@@ -97,7 +97,7 @@ Config::Server Config::Server::load(const std::string & path) {
   std::string key = "FRAMED_IP_ADDRESS";
   std::string value = "USER_NAME";
   std::string consentFile = "/etc/radius-cacher/consent.csv";
-  unsigned short consentRefreshMinutes = 45;
+  unsigned short consentRefreshMinutes = 12 * 60;
 
   parse(path, LINE_REGEX, [&](const std::smatch & match) {
     switch (hash(match[1])) {

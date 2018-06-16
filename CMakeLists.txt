@@ -53,7 +53,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/findcmake")
 # Set base directories
 set(CPP_SOURCE_DIR "src")
 set(CPP_TEST_DIR "test")
-set(LIB_DIR ${CMAKE_SOURCE_DIR}/lib)
+set(EXT_DIR ${CMAKE_SOURCE_DIR}/ext)
 
 ##------------------------------------------------------------------------------
 ## Options
@@ -64,14 +64,9 @@ set(LIB_DIR ${CMAKE_SOURCE_DIR}/lib)
 ## Dependencies
 ##
 
-# MFL
-add_subdirectory("${LIB_DIR}/mfl")
-list(APPEND INCLUDE_DIRS ${MFL_INCLUDE_DIR})
-
-# FMT
-add_subdirectory("${LIB_DIR}/fmt")
-list(APPEND INCLUDE_DIRS "${LIB_DIR}/fmt")
-list(APPEND LIBRARIES fmt::fmt-header-only)
+## MFL
+add_subdirectory("${EXT_DIR}/lib/mfl.cmake")
+list(APPEND LIBRARIES mfl)
 
 # Threads
 find_package(Threads)
@@ -84,7 +79,7 @@ set(Boost_USE_STATIC_RUNTIME ON)
 find_package(Boost 1.67.0 COMPONENTS system)
 if (NOT Boost_FOUND)
   message(STATUS "Could not find Boost. Adding external project")
-  include(${LIB_DIR}/boost/boost.cmake)
+  include(${EXT_DIR}/boost/boost.cmake)
   list(APPEND INCLUDE_DIRS ${BOOST_INCLUDE_DIR})
   list(APPEND LIBRARIES boost::system)
 else ()
@@ -97,7 +92,7 @@ endif (NOT Boost_FOUND)
 find_package(LibMemcached REQUIRED)
 if (NOT LIBMEMCACHED_FOUND)
   message(STATUS "Could not find libmemcached package. Adding external project")
-  include(${LIB_DIR}/libmemcached/libmemcached.cmake)
+  include(${EXT_DIR}/libmemcached/libmemcached.cmake)
   list(APPEND INCLUDE_DIRS ${LIBMEMCACHED_INCLUDE_DIR})
   list(APPEND LIBRARIES ${LIBMEMCACHED_LIBRARY})
 else ()

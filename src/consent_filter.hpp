@@ -7,6 +7,10 @@
 #include <vector>
 #include <array>
 #include <string>
+
+#include <boost/asio.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
+
 #include "config.hpp"
 
 class ConsentFilter {
@@ -31,6 +35,7 @@ private:
   std::array<std::vector<std::uint64_t>, 2> mConsents;
   CurrentVector mCurrent;
   const std::string mConsentFilePath;
+//  boost::asio::deadline_timer mReloader;
 
   void reload();
 
