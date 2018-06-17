@@ -8,6 +8,7 @@
 [ ]! Docker is not capturing logs
 [ ]! Add tests
 [ ]! Authenticator check
+[ ]! Allow consent manager to load all files in a folder and delete them
 [ ]  Use syslogger
 [ ]  Make Config more DRY
 [ ]  Clang-tidy
