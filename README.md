@@ -27,10 +27,9 @@ To have a faster build time, it is suggested to install boost and libmemcached a
 ### Compiling
 ```bash
 $ cd <repository_folder>
-$ git submodule update --init --recursive
 $ mkdir build
 $ cd build
-$ cmake -DCMAKE_BUILD_TYPE=Release [-DRC_VERBOSE_LEVEL=<LEVEL>] [-DRC_BUFFER_SIZE=<BUFFER_SIZE>] [-DRC_CALLBACK_COUNT=<CALLBACK_COUNT>] ..
+$ cmake -DCMAKE_BUILD_TYPE=Release [-DRC_VERBOSE_LEVEL=<LEVEL>] [-DRC_BUFFER_SIZE=<BUFFER_SIZE>] ..
 $ make
 ```
 
