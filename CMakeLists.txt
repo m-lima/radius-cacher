@@ -119,6 +119,7 @@ list(APPEND HEADERS
     ${CPP_SOURCE_DIR}/config.hpp
     ${CPP_SOURCE_DIR}/radius_parser.hpp
     ${CPP_SOURCE_DIR}/consent_filter.hpp
+    ${CPP_SOURCE_DIR}/action.hpp
     )
 
 ##------------------------------------------------------------------------------

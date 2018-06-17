@@ -14,6 +14,7 @@
 
 class Cache {
 public:
+
   inline void set(const std::string & key, const std::string & value) {
     mMemcache.set(key, std::vector<char>{value.cbegin(), value.cend()}, mTTL, 0);
   }

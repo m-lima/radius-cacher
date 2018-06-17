@@ -65,7 +65,7 @@ int main(int argc, char * argv[]) {
 
     Server server;
     RadiusParser parser{config.server};
-//    server.run(config, RadiusParser{});
+
     server.run(config, parser);
 
   } catch (const std::exception & ex) {

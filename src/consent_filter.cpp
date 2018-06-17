@@ -6,6 +6,7 @@
 
 #include <fstream>
 #include <regex>
+#include <thread>
 
 #include "logger.hpp"
 
@@ -14,13 +15,9 @@ namespace {
 }
 
 ConsentFilter::ConsentFilter(const Config::Server & config)
-    : mConsentFilePath{config.consentFile} {
-  reload();
-
-//  boost::asio::io_service ioService;
-//
-//  boost::asio::deadline_timer reloader(ioService, boost::posix_time::minutes(config.consentRefreshMinutes));
-//  reloader.async_wait(&reload);
+    : mConsentFilePath{config.consentFile},
+      mRefreshMinutes{config.consentRefreshMinutes} {
+  reloadLoop();
 }
 
 bool ConsentFilter::contains(std::uint64_t value) const {
@@ -29,11 +26,27 @@ bool ConsentFilter::contains(std::uint64_t value) const {
                             value);
 }
 
+void ConsentFilter::reloadLoop() {
+  std::thread t{[this]() {
+    reload();
+
+    LOG(logger::INFO,
+        "ConsentFilter::reloadLoop: Scheduling new consent reload for {:d} minutes from now",
+        mRefreshMinutes.count());
+    std::this_thread::sleep_for(mRefreshMinutes);
+
+    reloadLoop();
+  }};
+  t.detach();
+}
+
 void ConsentFilter::reload() {
+  LOG(logger::DEBUG, "ConsentFilter::reload: reloading");
+
   std::ifstream stream(mConsentFilePath);
 
   if (!stream.is_open()) {
-    LOG(logger::ERROR, "ConsentFilter::reload: could not load configuration file \"{:s}\".", mConsentFilePath);
+    LOG(logger::ERROR, "ConsentFilter::reload: could not load configuration file \"{:s}\"", mConsentFilePath);
   }
 
   mConsents[!mCurrent].clear();
@@ -57,7 +70,7 @@ void ConsentFilter::reload() {
   std::sort(mConsents[!mCurrent].begin(), mConsents[!mCurrent].end());
   mCurrent.swap();
 
-  LOG(logger::INFO, "Enabled new filter");
+  LOG(logger::INFO, "ConsentFilter::reload: Enabled new filter");
   for (const auto v : mConsents[mCurrent]) {
     logger::println<logger::DEBUG>("Filtering {:d}", v);
   }

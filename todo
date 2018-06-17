@@ -4,21 +4,21 @@
  !  :Important
  .  :Minor
 
-[ ]  Authenticator check
-[X]  Configuration file for server
-[O]  Map AVP number to name
-[X]  Timestamp on logs
-[ ]  Use syslogger
-[@]  CMake options
 [ ]! Avoid libmemcached
-[X]! Read configuration from env vars
-[ ]. Reduce repeated code in Config
-[X]  Remove git submodule and use external project
-[ ]. Get rid of the pointer, if possible
 [ ]! Docker is not capturing logs
-[ ]! Traffic filter (consent)
-[ ]  RadiusParser should not know about the cache
-[X]! Debug logs are taking computing power
-[ ]  Add tests
+[ ]! Add tests
+[ ]! Authenticator check
+[ ]  Use syslogger
 [ ]  Make Config more DRY
 [ ]  Clang-tidy
+[ ]. Reduce repeated code in Config
+[X]! Read configuration from env vars
+[X]! Traffic filter (consent)
+[X]! Debug logs are taking computing power
+[X]  Configuration file for server
+[X]  Timestamp on logs
+[X]  RadiusParser should not know about the cache
+[X]  Remove git submodule and use external project
+[X]. Get rid of the pointer, if possible
+[O]  Map AVP number to name
+[@]  CMake options

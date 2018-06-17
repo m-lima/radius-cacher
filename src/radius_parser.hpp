@@ -6,22 +6,12 @@
 
 #include <optional>
 
-#include "cache.hpp"
 #include "radius.hpp"
 #include "logger.hpp"
 #include "consent_filter.hpp"
 
 class RadiusParser {
 private:
-  /**
-   * Possible actions to be taken given a certain packet
-   */
-  enum Action {
-    DO_NOTHING,
-    STORE,
-    REMOVE,
-    FILTER
-  };
 
   /**
    * Interpret what kind of Account-Request this packet is to decide the action to be taken
@@ -37,11 +27,11 @@ private:
     switch (type) {
       case radius::START:
       case radius::UPDATE:
-        return STORE;
+        return Action::STORE;
       case radius::STOP:
-        return REMOVE;
+        return Action::REMOVE;
       default:
-        return DO_NOTHING;
+        return Action::DO_NOTHING;
     }
   }
 
@@ -57,24 +47,21 @@ public:
    */
   explicit RadiusParser(const Config::Server & config) : mFilter{std::make_shared<ConsentFilter>(config)} {}
 
-  /**
-   * Parse the incoming buffer for packet and call for action
-   *
-   * @tparam I the itarator for the buffer
-   * @param bytesReceived number of bytes received in current packet
-   * @param begin the start of the buffer
-   * @param end the end of the buffer
-   * @param cache cache instance to push changes
-   */
+   /**
+    * Parse the incoming buffer for packet and call for action
+    *
+    * @tparam I the itarator for the buffer
+    * @param bytesReceived number of bytes received in current packet
+    * @param begin the start of the buffer
+    * @param end the end of the buffer
+    * @return the action to be taken by the server
+    */
   template <typename I>
-  void operator()(std::size_t bytesReceived,
-                  I begin,
-                  I end,
-                  Cache * const cache) const {
+  Action operator()(std::size_t bytesReceived, I begin, I end) const {
 
     // Read the header
     auto header = radius::Header::extract(begin, end);
-    if (header.code != radius::Header::REQUEST) return; // Type is not a request. Break away
+    if (header.code != radius::Header::REQUEST) return {}; // Type is not a request. Break away
 
     auto packetEnd = begin + header.length;
     LOG(logger::DEBUG,
@@ -89,7 +76,7 @@ public:
     begin += radius::Header::SIZE;
 
     // Prepare the cache action and data
-    auto action = DO_NOTHING;
+    auto action = Action::DO_NOTHING;
     std::optional<std::string> key;
     std::optional<std::string> value;
 
@@ -122,11 +109,11 @@ public:
       switch (attribute.type) {
 
         case radius::Attribute::ACCT_STATUS_TYPE:
-          if ((action = extractAction(valueBegin, end)) == DO_NOTHING) {
+          if ((action = extractAction(valueBegin, end)) == Action::DO_NOTHING) {
             LOG(logger::INFO, "Got action DO_NOTHING. Breaking away");
-            return; // Free the buffer stack and callback ASAP
+            return {}; // Free the buffer stack and callback ASAP
           }
-          LOG(logger::DEBUG, "Got action {:s}", action == STORE ? "STORE" : "REMOVE");
+          LOG(logger::DEBUG, "Got action {:s}", action == Action::STORE ? "STORE" : "REMOVE");
           break;
 
         case radius::Attribute::FRAMED_IP_ADDRESS: {
@@ -140,13 +127,13 @@ public:
           value = std::make_optional(radius::ValueReader::getString(valueBegin, end, begin + attribute.length));
           if (mFilter->contains(std::stoll(*value))) {
             LOG(logger::DEBUG, "User {} has opted-out", *value);
-            return; // User opted-out; Free the buffer stack and callback ASAP
+            return {}; // User opted-out; Free the buffer stack and callback ASAP
           }
           LOG(logger::DEBUG, "Value = {:s}", *value);
           break;
       }
 
-      if (key && value && action != DO_NOTHING) {
+      if (key && value && action != Action::DO_NOTHING) {
         LOG(logger::DEBUG, "Got all fields. Breaking loop");
         break; // Break the loop ASAP
       }
@@ -155,17 +142,11 @@ public:
 
     if (!key || !value) {
       LOG(logger::INFO, "Missing fields. Breaking away");
-      return; // Free the buffer stack and callback ASAP
+      return {}; // Free the buffer stack and callback ASAP
     }
 
-    LOG(logger::INFO, "{:s} {:s} with {:s}", action == STORE ? "Storing" : "Removing", *key, *value);
+    LOG(logger::INFO, "{:s} {:s} with {:s}", action == Action::STORE ? "Storing" : "Removing", *key, *value);
 
-    switch (action) {
-      case STORE:
-        cache->set(*key, *value);
-        break;
-      case REMOVE:
-        cache->remove(*key);
-    }
+    return {action, std::move(key), std::move(value)};
   }
 };

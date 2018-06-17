@@ -14,6 +14,7 @@
 #include "config.hpp"
 #include "logger.hpp"
 #include "cache.hpp"
+#include "action.hpp"
 
 /**
  * Callback wrapper to execute once the buffer is ready
@@ -36,13 +37,21 @@ struct Callback {
                   const P & parser) {
     auto bufferBegin = std::cbegin(mBuffer);
     auto bufferEnd = std::cend(mBuffer);
-    return parser(byteCount,
-                  bufferBegin,
-                  bufferBegin +
-                  std::min(byteCount,
-                           static_cast<std::size_t>(std::max(0L, std::distance(bufferBegin, bufferEnd)))),
-                  &mCache
+    auto action = parser(
+        byteCount,
+        bufferBegin,
+        bufferBegin +
+        std::min(byteCount, static_cast<std::size_t>(std::max(0L, std::distance(bufferBegin, bufferEnd))))
     );
+
+    switch (action.action) {
+      case Action::STORE:
+        mCache.set(*(action.key), *(action.value));
+        break;
+      case Action::REMOVE:
+        mCache.remove(*(action.key));
+        break;
+    }
   }
 
 };
