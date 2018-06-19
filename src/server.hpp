@@ -84,7 +84,7 @@ public:
   template <typename P>
   void run(const Config & config, const P & parser) {
 
-    LOG(logger::LOG, "Server::run: launching listener on UDP {:d} on a single thread", config.server.port);
+    LOG(logger::LOG, "Server::run: launching listener on UDP {:d} on a single core", config.server.port);
     boost::asio::io_context ioConstext;
     boostUdp::socket socket{ioConstext, boostUdp::endpoint{boostUdp::v4(), config.server.port}};
     Cache cache{config.cache};
