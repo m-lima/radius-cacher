@@ -93,7 +93,7 @@ Config::Server Config::Server::load(const std::string & path) {
                                      "[[:space:]]*$"};
 
   unsigned short port = 1813;
-  unsigned short threadPoolSize = 8;
+  unsigned short threadPoolSize = 1;
   std::string key = "FRAMED_IP_ADDRESS";
   std::string value = "USER_NAME";
   std::string consentFile = "/etc/radius-cacher/consent.csv";
