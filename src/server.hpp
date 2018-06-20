@@ -65,15 +65,15 @@ namespace singlecore {
 
         switch (action.action) {
           case Action::STORE:
-            LOG(logger::DEBUG, "Server::Listener: Storing {:s} with {:s}", *(action.key), *(action.value));
+            LOG(logger::INFO, "Server::Listener: Storing {:s} with {:s}", *(action.key), *(action.value));
             mCache.set(*(action.key), *(action.value));
             break;
           case Action::REMOVE:
-            LOG(logger::DEBUG, "Server::Listener: Removing {:s} with {:s}", *(action.key), *(action.value));
+            LOG(logger::INFO, "Server::Listener: Removing {:s} with {:s}", *(action.key), *(action.value));
             mCache.remove(*(action.key));
             break;
           case Action::FILTER:
-            LOG(logger::DEBUG, "Server::Listener: Filtering {:s}", *(action.value));
+            LOG(logger::INFO, "Server::Listener: Filtering {:s}", *(action.value));
             break;
         }
       }
@@ -152,15 +152,15 @@ namespace multicore {
 
       switch (action.action) {
         case Action::STORE:
-          LOG(logger::DEBUG, "Server::Listener: Storing {:s} with {:s}", *(action.key), *(action.value));
+          LOG(logger::INFO, "Server::Listener: Storing {:s} with {:s}", *(action.key), *(action.value));
           mCache.set(*(action.key), *(action.value));
           break;
         case Action::REMOVE:
-          LOG(logger::DEBUG, "Server::Listener: Removing {:s} with {:s}", *(action.key), *(action.value));
+          LOG(logger::INFO, "Server::Listener: Removing {:s} with {:s}", *(action.key), *(action.value));
           mCache.remove(*(action.key));
           break;
         case Action::FILTER:
-          LOG(logger::DEBUG, "Server::Listener: Filtering {:s}", *(action.value));
+          LOG(logger::INFO, "Server::Listener: Filtering {:s}", *(action.value));
           break;
       }
     }
