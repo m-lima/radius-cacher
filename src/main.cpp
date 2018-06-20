@@ -12,6 +12,10 @@
 #include "server.hpp"
 #include "radius_parser.hpp"
 
+namespace logger {
+  Level verboseLevel = logger::LOG;
+}
+
 /**
  * Prints the usage for the application
  *
@@ -20,13 +24,16 @@
  */
 void printUsage(std::FILE * file = stdout) {
   mfl::out::println(file, "Usage for radius-cacher:");
-  mfl::out::println(file, "radius-cacher [-s SERVER_CONFIG] [-m CACHE_CONFIG]");
+  mfl::out::println(file, "radius-cacher [-s SERVER_CONFIG] [-m CACHE_CONFIG] [-v VERBOSE_LEVEL]");
   mfl::out::println(file, "  {:<15s}{:s}",
                     "SERVER_CONFIG",
                     "Server configuration file (default: /etc/radius-cacher/server.conf)");
   mfl::out::println(file, "  {:<15s}{:s}",
                     "CACHE_CONFIG",
                     "cache configuration file (default: /etc/radius-cacher/cache.conf)");
+  mfl::out::println(file, "  {:<15s}{:s}",
+                    "VERBOSE_LEVEL",
+                    "verbose level for the application (default: LOG)");
   mfl::out::println(file, "");
 
   mfl::out::println(file, "Usage for help:");
@@ -37,6 +44,22 @@ int main(int argc, char * argv[]) {
   if (mfl::args::findOption(argv, argv + argc, "-h")) {
     printUsage();
     return 0;
+  }
+
+  {
+    auto aVerboseLevel = mfl::args::extractOption(argv, argv + argc, "-v");
+    if (!aVerboseLevel) {
+      aVerboseLevel = std::getenv("RADIUS_VERBOSE_LEVEL");
+    }
+
+    if (aVerboseLevel) {
+      if (!logger::setVerboseLevel(aVerboseLevel)) {
+        LOG(logger::FATAL, "Invalid verbose level set: {:s}", aVerboseLevel);
+        return -1;
+      }
+    } else {
+      LOG(logger::WARN, "No valid verbose level set in parameters or environment variables. Using default: LOG");
+    }
   }
 
   auto serverConfig = std::string{"/etc/radius-cacher/server.conf"};

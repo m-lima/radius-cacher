@@ -129,10 +129,6 @@ list(APPEND HEADERS
 add_executable(radius-cacher ${SOURCES} ${HEADERS})
 
 # Add make time constants
-if (DEFINED RC_VERBOSE_LEVEL)
-  add_definitions(-DRC_VERBOSE_LEVEL=${RC_VERBOSE_LEVEL})
-  message(STATUS "Using verbose level ${RC_VERBOSE_LVEL}")
-endif()
 if (DEFINED RC_BUFFER_SIZE)
   add_definitions(-DRC_BUFFER_SIZE=${RC_BUFFER_SIZE})
   message(STATUS "Using buffer size ${RC_BUFFER_SIZE}")
