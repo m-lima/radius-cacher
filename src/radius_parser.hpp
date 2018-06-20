@@ -125,7 +125,7 @@ public:
 
         case radius::Attribute::USER_NAME:
           value = std::make_optional(radius::ValueReader::getString(valueBegin, end, begin + attribute.length));
-          if (mFilter->contains(std::stoll(*value))) {
+          if (mFilter->contains(std::stoull(*value))) {
             return {Action::FILTER, std::move(key), std::move(value)}; // User opted-out; Free the buffer stack and callback ASAP
           }
           LOG(logger::DEBUG, "Value = {:s}", *value);

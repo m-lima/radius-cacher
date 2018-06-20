@@ -57,7 +57,7 @@ void ConsentFilter::reload() {
       std::smatch match;
       if (std::regex_match(buffer, match, REGEX)) {
         try {
-          mConsents[!mCurrent].emplace_back(std::stoll(match[1]));
+          mConsents[!mCurrent].emplace_back(std::stoull(match[1]));
         } catch (const std::exception & ex) {
           LOG(logger::WARN, "ConsentFilter::reload: failed to parse value {:s}: {}", match[1], ex.what());
         }
