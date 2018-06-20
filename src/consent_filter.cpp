@@ -72,7 +72,7 @@ void ConsentFilter::reload() {
 
   LOG(logger::INFO, "ConsentFilter::reload: Enabled new filter");
   for (const auto v : mConsents[mCurrent]) {
-    logger::println<logger::DEBUG>("Filtering {:d}", v);
+    logger::println<logger::INFO>("Filtering {:d}", v);
   }
 }
 
