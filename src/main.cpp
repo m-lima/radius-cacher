@@ -64,14 +64,7 @@ int main(int argc, char * argv[]) {
     LOG(logger::INFO, "main: configuration built");
 
     RadiusParser parser{config.server};
-
-    if (config.server.threadPoolSize == 1) {
-      singlecore::Server server;
-      server.run(config, parser);
-    } else {
-      multicore::Server server;
-      server.run(config, parser);
-    }
+    Server::run(config, parser);
 
   } catch (const std::exception & ex) {
     LOG(logger::FATAL, "main: terminating due to exception: {}", ex.what());

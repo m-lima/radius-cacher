@@ -87,13 +87,14 @@ namespace {
 Config::Server Config::Server::load(const std::string & path) {
   using namespace mfl::string::hash32;
   static const std::regex LINE_REGEX{"^[[:space:]]*"
-                                     "(PORT|THREAD_POOL_SIZE|KEY|VALUE|FILTER_FILE|FILTER_REFRESH_MINUTES)"
+                                     "(PORT|THREAD_POOL_SIZE|SINGLE_CORE|KEY|VALUE|FILTER_FILE|FILTER_REFRESH_MINUTES)"
                                      "[[:space:]]*=[[:space:]]*"
                                      "(.+)"
                                      "[[:space:]]*$"};
 
   unsigned short port = 1813;
   unsigned short threadPoolSize = 1;
+  bool singleCore = true;
   std::string key = "FRAMED_IP_ADDRESS";
   std::string value = "USER_NAME";
   std::string filterFile = "/etc/radius-cacher/filter.txt";
@@ -106,6 +107,9 @@ Config::Server Config::Server::load(const std::string & path) {
         break;
       case "THREAD_POOL_SIZE"_h:
         threadPoolSize = getShort(match);
+        break;
+      case "SINGLE_CORE"_h:
+        singleCore = getBool(match);
         break;
       case "KEY"_h:
         key = getString(match);
@@ -129,6 +133,9 @@ Config::Server Config::Server::load(const std::string & path) {
   env = std::getenv("RADIUS_THREAD_POOL_SIZE");
   if (env) threadPoolSize = getShort("THREAD_POOL_SIZE", env);
 
+  env = std::getenv("RADIUS_SINGLE_CORE");
+  if (env) singleCore = getBool("SINGLE_CORE", env);
+
   env = std::getenv("RADIUS_KEY");
   if (env) key = getString("KEY", env);
 
@@ -148,16 +155,18 @@ Config::Server Config::Server::load(const std::string & path) {
       "{:s} = {}\n"
       "{:s} = {}\n"
       "{:s} = {}\n"
+      "{:s} = {}\n"
       "{:s} = {}",
       "PORT", port,
       "THREAD_POOL_SIZE", threadPoolSize,
+      "SINGLE_CORE", singleCore,
       "KEY", key,
       "VALUE", value,
       "FILTER_FILE", filterFile,
       "FILTER_REFRESH_MINUTES", filterRefreshMinutes
   );
 
-  return {port, threadPoolSize, key, value, filterFile, filterRefreshMinutes};
+  return {port, threadPoolSize, singleCore, key, value, filterFile, filterRefreshMinutes};
 }
 
 Config::Cache Config::Cache::load(const std::string & path) {

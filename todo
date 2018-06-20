@@ -4,23 +4,22 @@
  !  :Important
  .  :Minor
 
-[ ]! Avoid libmemcached
-[ ]! Docker is not capturing logs
 [ ]! Add tests
 [ ]! Authenticator check
-[ ]! Allow consent manager to load all files in a folder and delete them
-[ ]! Unify Server::Callback
-[ ]  Use syslogger
-[ ]  Make Config more DRY
+[ ]  Avoid libmemcached
 [ ]  Clang-tidy
 [ ]. Reduce repeated code in Config
+[ ]. Use syslogger
 [X]! Read configuration from env vars
-[X]! Traffic filter (consent)
+[X]! Traffic filter
 [X]! Debug logs are taking computing power
+[X]! Docker is not capturing logs
+[X]  Unify Server::Callback
 [X]  Configuration file for server
 [X]  Timestamp on logs
 [X]  RadiusParser should not know about the cache
 [X]  Remove git submodule and use external project
 [X]. Get rid of the pointer, if possible
 [O]  Map AVP number to name
+[@]! Allow filter manager to load all files in a folder and delete them
 [@]  CMake options

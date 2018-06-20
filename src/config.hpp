@@ -10,6 +10,7 @@ struct Config {
   struct Server {
     const unsigned short port;
     const unsigned short threadPoolSize;
+    const bool singleCore;
     const std::string key;
     const std::string value;
     const std::string filterFile;
@@ -19,12 +20,14 @@ struct Config {
 
     Server(const unsigned short port,
            const unsigned short threadPoolSize,
+           const bool singleCore,
            std::string key,
            std::string value,
            std::string filterFile,
            const unsigned short filterRefreshMinutes)
         : port{port},
           threadPoolSize{threadPoolSize},
+          singleCore{singleCore},
           key{std::move(key)},
           value{std::move(value)},
           filterFile{std::move(filterFile)},
