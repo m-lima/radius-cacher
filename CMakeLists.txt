@@ -108,7 +108,7 @@ endif (NOT LIBMEMCACHED_FOUND)
 list(APPEND SOURCES
     ${CPP_SOURCE_DIR}/main.cpp
     ${CPP_SOURCE_DIR}/config.cpp
-    ${CPP_SOURCE_DIR}/consent_filter.cpp
+    ${CPP_SOURCE_DIR}/filter.cpp
   )
 
 list(APPEND HEADERS
@@ -118,7 +118,7 @@ list(APPEND HEADERS
     ${CPP_SOURCE_DIR}/logger.hpp
     ${CPP_SOURCE_DIR}/config.hpp
     ${CPP_SOURCE_DIR}/radius_parser.hpp
-    ${CPP_SOURCE_DIR}/consent_filter.hpp
+    ${CPP_SOURCE_DIR}/filter.hpp
     ${CPP_SOURCE_DIR}/action.hpp
     )
 
@@ -151,7 +151,7 @@ target_include_directories(radius-cacher PRIVATE ${INCLUDE_DIRS})
 list(APPEND TESTS
     ${CPP_TEST_DIR}/test_main.cpp
     ${CPP_TEST_DIR}/test_config.cpp
-    ${CPP_TEST_DIR}/test_consent_filter.cpp
+    ${CPP_TEST_DIR}/test_filter.cpp
 )
 
 enable_testing()

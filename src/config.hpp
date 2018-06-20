@@ -12,8 +12,8 @@ struct Config {
     const unsigned short threadPoolSize;
     const std::string key;
     const std::string value;
-    const std::string consentFile;
-    const unsigned short consentRefreshMinutes;
+    const std::string filterFile;
+    const unsigned short filterRefreshMinutes;
 
     static Server load(const std::string & path);
 
@@ -21,14 +21,14 @@ struct Config {
            const unsigned short threadPoolSize,
            std::string key,
            std::string value,
-           std::string consentFile,
-           const unsigned short consentRefreshMinutes)
+           std::string filterFile,
+           const unsigned short filterRefreshMinutes)
         : port{port},
           threadPoolSize{threadPoolSize},
           key{std::move(key)},
           value{std::move(value)},
-          consentFile{std::move(consentFile)},
-          consentRefreshMinutes{consentRefreshMinutes} {}
+          filterFile{std::move(filterFile)},
+          filterRefreshMinutes{filterRefreshMinutes} {}
   };
 
   struct Cache {

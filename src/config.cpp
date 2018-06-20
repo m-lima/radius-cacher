@@ -87,7 +87,7 @@ namespace {
 Config::Server Config::Server::load(const std::string & path) {
   using namespace mfl::string::hash32;
   static const std::regex LINE_REGEX{"^[[:space:]]*"
-                                     "(PORT|THREAD_POOL_SIZE|KEY|VALUE|CONSENT_FILE|CONSENT_REFRESH_MINUTES)"
+                                     "(PORT|THREAD_POOL_SIZE|KEY|VALUE|FILTER_FILE|FILTER_REFRESH_MINUTES)"
                                      "[[:space:]]*=[[:space:]]*"
                                      "(.+)"
                                      "[[:space:]]*$"};
@@ -96,8 +96,8 @@ Config::Server Config::Server::load(const std::string & path) {
   unsigned short threadPoolSize = 1;
   std::string key = "FRAMED_IP_ADDRESS";
   std::string value = "USER_NAME";
-  std::string consentFile = "/etc/radius-cacher/consent.csv";
-  unsigned short consentRefreshMinutes = 12 * 60;
+  std::string filterFile = "/etc/radius-cacher/filter.txt";
+  unsigned short filterRefreshMinutes = 12 * 60;
 
   parse(path, LINE_REGEX, [&](const std::smatch & match) {
     switch (hash(match[1])) {
@@ -113,10 +113,10 @@ Config::Server Config::Server::load(const std::string & path) {
       case "VALUE"_h:
         value = getString(match);
         break;
-      case "CONSENT_FILE"_h:
+      case "FILTER_FILE"_h:
         value = getString(match);
         break;
-      case "CONSENT_REFRESH_MINUTES"_h:
+      case "FILTER_REFRESH_MINUTES"_h:
         value = getString(match);
         break;
     }
@@ -135,11 +135,11 @@ Config::Server Config::Server::load(const std::string & path) {
   env = std::getenv("RADIUS_VALUE");
   if (env) value = getString("VALUE", env);
 
-  env = std::getenv("RADIUS_CONSENT_FILE");
-  if (env) consentFile = getString("CONSENT_FILE", env);
+  env = std::getenv("RADIUS_FILTER_FILE");
+  if (env) filterFile = getString("FILTER_FILE", env);
 
-  env = std::getenv("RADIUS_CONSENT_REFRESH_MINUTES");
-  if (env) consentRefreshMinutes = getShort("CONSENT_REFRESH_MINUTES", env);
+  env = std::getenv("RADIUS_FILTER_REFRESH_MINUTES");
+  if (env) filterRefreshMinutes = getShort("FILTER_REFRESH_MINUTES", env);
 
   LOG(logger::LOG,
       "config::Server::load: configuring server with\n"
@@ -153,11 +153,11 @@ Config::Server Config::Server::load(const std::string & path) {
       "THREAD_POOL_SIZE", threadPoolSize,
       "KEY", key,
       "VALUE", value,
-      "CONSENT_FILE", consentFile,
-      "CONSENT_REFRESH_MINUTES", consentRefreshMinutes
+      "FILTER_FILE", filterFile,
+      "FILTER_REFRESH_MINUTES", filterRefreshMinutes
   );
 
-  return {port, threadPoolSize, key, value, consentFile, consentRefreshMinutes};
+  return {port, threadPoolSize, key, value, filterFile, filterRefreshMinutes};
 }
 
 Config::Cache Config::Cache::load(const std::string & path) {

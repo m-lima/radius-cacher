@@ -8,7 +8,7 @@
 
 #include "radius.hpp"
 #include "logger.hpp"
-#include "consent_filter.hpp"
+#include "filter.hpp"
 
 class RadiusParser {
 private:
@@ -35,17 +35,17 @@ private:
     }
   }
 
-  const std::shared_ptr<ConsentFilter> mFilter;
+  const std::shared_ptr<Filter> mFilter;
 
 public:
 
   /**
-   * Build the parser with a consent filter
+   * Build the parser with a filter
    *
    * The parser must be built with the filter to avoid processing of packets before
    * the filter is ready
    */
-  explicit RadiusParser(const Config::Server & config) : mFilter{std::make_shared<ConsentFilter>(config)} {}
+  explicit RadiusParser(const Config::Server & config) : mFilter{std::make_shared<Filter>(config)} {}
 
    /**
     * Parse the incoming buffer for packet and call for action

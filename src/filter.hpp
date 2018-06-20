@@ -12,7 +12,7 @@
 
 #include "config.hpp"
 
-class ConsentFilter {
+class Filter {
 private:
 
   struct CurrentVector {
@@ -31,9 +31,9 @@ private:
     }
   };
 
-  std::array<std::vector<std::uint64_t>, 2> mConsents;
+  std::array<std::vector<std::uint64_t>, 2> mFilters;
   CurrentVector mCurrent;
-  const std::string mConsentFilePath;
+  const std::string mFilePath;
 
   const std::chrono::minutes mRefreshMinutes;
 
@@ -42,13 +42,13 @@ private:
 
 public:
 
-  ConsentFilter(const Config::Server & config);
+  Filter(const Config::Server & config);
   bool contains(std::uint64_t value) const;
 
-  ~ConsentFilter() = default;
-  ConsentFilter(const ConsentFilter &) = delete;
-  ConsentFilter(ConsentFilter &&) = delete;
-  void operator=(const ConsentFilter &) = delete;
+  ~Filter() = default;
+  Filter(const Filter &) = delete;
+  Filter(Filter &&) = delete;
+  void operator=(const Filter &) = delete;
 
 };
 
