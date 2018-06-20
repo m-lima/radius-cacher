@@ -126,8 +126,7 @@ public:
         case radius::Attribute::USER_NAME:
           value = std::make_optional(radius::ValueReader::getString(valueBegin, end, begin + attribute.length));
           if (mFilter->contains(std::stoll(*value))) {
-            LOG(logger::DEBUG, "User {} has opted-out", *value);
-            return {}; // User opted-out; Free the buffer stack and callback ASAP
+            return {Action::FILTER, std::move(key), std::move(value)}; // User opted-out; Free the buffer stack and callback ASAP
           }
           LOG(logger::DEBUG, "Value = {:s}", *value);
           break;
@@ -144,8 +143,6 @@ public:
       LOG(logger::INFO, "Missing fields. Breaking away");
       return {}; // Free the buffer stack and callback ASAP
     }
-
-    LOG(logger::INFO, "{:s} {:s} with {:s}", action == Action::STORE ? "Storing" : "Removing", *key, *value);
 
     return {action, std::move(key), std::move(value)};
   }
