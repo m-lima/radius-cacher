@@ -9,6 +9,7 @@
 [ ]! Add tests
 [ ]! Authenticator check
 [ ]! Allow consent manager to load all files in a folder and delete them
+[ ]! Unify Server::Callback
 [ ]  Use syslogger
 [ ]  Make Config more DRY
 [ ]  Clang-tidy
