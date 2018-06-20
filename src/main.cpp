@@ -61,7 +61,7 @@ int main(int argc, char * argv[]) {
 
   try {
     Config config{serverConfig, cacheConfig};
-    LOG(logger::DEBUG, "main: configuration built");
+    LOG(logger::INFO, "main: configuration built");
 
     RadiusParser parser{config.server};
 

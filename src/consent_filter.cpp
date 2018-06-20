@@ -11,7 +11,7 @@
 #include "logger.hpp"
 
 namespace {
-  const std::regex REGEX{("\"([[:digit:]]+)\"")};
+  const std::regex REGEX{("([[:digit:]]+)")};
 }
 
 ConsentFilter::ConsentFilter(const Config::Server & config)
@@ -30,7 +30,7 @@ void ConsentFilter::reloadLoop() {
   std::thread t{[this]() {
     reload();
 
-    LOG(logger::INFO,
+    LOG(logger::LOG,
         "ConsentFilter::reloadLoop: Scheduling new consent reload for {:d} minutes from now",
         mRefreshMinutes.count());
     std::this_thread::sleep_for(mRefreshMinutes);
@@ -41,12 +41,12 @@ void ConsentFilter::reloadLoop() {
 }
 
 void ConsentFilter::reload() {
-  LOG(logger::DEBUG, "ConsentFilter::reload: reloading");
+  LOG(logger::INFO, "ConsentFilter::reload: reloading");
 
   std::ifstream stream(mConsentFilePath);
 
   if (!stream.is_open()) {
-    LOG(logger::ERROR, "ConsentFilter::reload: could not load configuration file \"{:s}\"", mConsentFilePath);
+    LOG(logger::ERROR, "ConsentFilter::reload: could not load consent file \"{:s}\"", mConsentFilePath);
   }
 
   mConsents[!mCurrent].clear();
@@ -55,7 +55,7 @@ void ConsentFilter::reload() {
   try {
     while (std::getline(stream, buffer)) {
       std::smatch match;
-      if (std::regex_match(buffer, match, REGEX)) {
+      if (std::regex_search(buffer, match, REGEX)) {
         try {
           mConsents[!mCurrent].emplace_back(std::stoull(match[1]));
         } catch (const std::exception & ex) {
@@ -70,9 +70,9 @@ void ConsentFilter::reload() {
   std::sort(mConsents[!mCurrent].begin(), mConsents[!mCurrent].end());
   mCurrent.swap();
 
-  LOG(logger::INFO, "ConsentFilter::reload: Enabled new filter");
-  for (const auto v : mConsents[mCurrent]) {
-    logger::println<logger::INFO>("Filtering {:d}", v);
+  LOG(logger::LOG, "ConsentFilter::reload: Enabled new filter with {:d} entries", mConsents[mCurrent].size());
+  for (const auto value : mConsents[mCurrent]) {
+    LOG(logger::INFO, "ConsentFilter::reload: Filtering {:d}", value);
   }
 }
 

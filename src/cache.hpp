@@ -16,13 +16,15 @@ class Cache {
 public:
 
   inline void set(const std::string & key, const std::string & value) {
-    auto status = mMemcache.set(key, std::vector<char>{value.cbegin(), value.cend()}, mTTL, 0);
-    LOG(logger::INFO, "Cache::set: Set {:s} for {:s}:{:s}", status ? "success" : "failure", key, value);
+    if (!mMemcache.set(key, std::vector<char>{value.cbegin(), value.cend()}, mTTL, 0)) {
+      LOG(logger::INFO, "Cache::set: Failed to set {:s}:{:s}", key, value);
+    }
   }
 
   inline void remove(const std::string & key) {
-    auto status = mMemcache.remove(key);
-    LOG(logger::INFO, "Cache::remove: Remove {:s} for {:s}", status ? "success" : "failure", key);
+    if (!mMemcache.remove(key)) {
+      LOG(logger::INFO, "Cache::remove: Failed to remove {:s}", key);
+    }
   }
 
   explicit Cache(const Config::Cache & config)

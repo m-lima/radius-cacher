@@ -96,7 +96,7 @@ namespace singlecore {
       Cache cache{config.cache};
 
       Listener listener(config.cache);
-      LOG(logger::DEBUG, "Server::run: listener built");
+      LOG(logger::INFO, "Server::run: listener built");
 
       for (;;) {
         try {

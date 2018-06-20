@@ -29,7 +29,7 @@ namespace {
       while (std::getline(stream, buffer)) {
         std::smatch match;
         if (std::regex_match(buffer, match, regex)) {
-          LOG(logger::DEBUG, "config::parse: found configuration in file: {:s} = {:s}", match[1], match[2]);
+          LOG(logger::INFO, "config::parse: found configuration in file: {:s} = {:s}", match[1], match[2]);
           callback(match);
         }
       }
