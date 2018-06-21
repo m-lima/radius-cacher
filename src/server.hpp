@@ -167,9 +167,8 @@ private:
   static void runSingleCore(const Config & config, const P & parser) {
 
     LOG(logger::LOG, "Server::runSingleCore: launching listener on UDP {:d} on a single core", config.server.port);
-    boost::asio::io_context ioConstext;
-    boostUdp::socket socket{ioConstext, boostUdp::endpoint{boostUdp::v4(), config.server.port}};
-    Cache cache{config.cache};
+    boost::asio::io_context ioContext;
+    boostUdp::socket socket{ioContext, boostUdp::endpoint{boostUdp::v4(), config.server.port}};
 
     Executor executor(config.cache);
     LOG(logger::INFO, "Server::runSingleCore: executor built");
