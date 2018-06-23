@@ -118,10 +118,10 @@ Config::Server Config::Server::load(const std::string & path) {
         value = getString(match);
         break;
       case "FILTER_FILE"_h:
-        value = getString(match);
+        filterFile = getString(match);
         break;
       case "FILTER_REFRESH_MINUTES"_h:
-        value = getString(match);
+        filterRefreshMinutes = getShort(match);
         break;
     }
   });
