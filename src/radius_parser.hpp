@@ -45,7 +45,8 @@ public:
    * The parser must be built with the filter to avoid processing of packets before
    * the filter is ready
    */
-  explicit RadiusParser(const Config::Server & config) : mFilter{std::make_shared<Filter>(config)} {}
+  explicit RadiusParser(std::string filterFilePath, std::chrono::minutes refreshMinutes)
+      : mFilter{std::make_shared<Filter>(std::move(filterFilePath), refreshMinutes)} {}
 
    /**
     * Parse the incoming buffer for packet and call for action

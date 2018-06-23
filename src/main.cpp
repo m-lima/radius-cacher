@@ -86,7 +86,7 @@ int main(int argc, char * argv[]) {
     Config config{serverConfig, cacheConfig};
     LOG(logger::INFO, "main: configuration built");
 
-    RadiusParser parser{config.server};
+    RadiusParser parser{config.server.filterFile, config.server.filterRefreshMinutes};
     Server::run(config, parser);
 
   } catch (const std::exception & ex) {

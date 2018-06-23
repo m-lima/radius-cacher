@@ -14,10 +14,13 @@ namespace {
   const std::regex REGEX{("([[:digit:]]+)")};
 }
 
-Filter::Filter(const Config::Server & config)
-    : mFilePath{config.filterFile},
-      mRefreshMinutes{config.filterRefreshMinutes} {
-  reloadLoop();
+Filter::Filter(std::string path, std::chrono::seconds refreshSeconds)
+    : mFilePath{std::move(path)},
+      mRefreshSeconds{refreshSeconds} {
+  reload();
+  if (mRefreshSeconds.count() > 0) {
+    reloadLoop();
+  }
 }
 
 bool Filter::contains(std::uint64_t value) const {
@@ -28,13 +31,15 @@ bool Filter::contains(std::uint64_t value) const {
 
 void Filter::reloadLoop() {
   std::thread t{[this]() {
+    {
+      auto nextTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now() + mRefreshSeconds);
+      LOG(logger::LOG,
+          "Filter::reloadLoop: Scheduling new filter reload at {:%F %T}",
+          *std::localtime(&nextTime));
+      std::this_thread::sleep_for(mRefreshSeconds);
+    }
+
     reload();
-
-    LOG(logger::LOG,
-        "Filter::reloadLoop: Scheduling new filter reload for {:d} minutes from now",
-        mRefreshMinutes.count());
-    std::this_thread::sleep_for(mRefreshMinutes);
-
     reloadLoop();
   }};
   t.detach();
@@ -47,6 +52,7 @@ void Filter::reload() {
 
   if (!stream.is_open()) {
     LOG(logger::ERROR, "Filter::reload: could not load filter file \"{:s}\"", mFilePath);
+    return;
   }
 
   mFilters[!mCurrent].clear();
