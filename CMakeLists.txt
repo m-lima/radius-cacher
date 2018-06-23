@@ -6,9 +6,6 @@ project("RadiusCacher" CXX)
 ## Initialization
 ##
 
-# Enable tests
-enable_testing()
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_STANDARD 11)
@@ -52,7 +49,6 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/findcmake")
 
 # Set base directories
 set(CPP_SOURCE_DIR "src")
-set(CPP_TEST_DIR "test")
 set(EXT_DIR ${CMAKE_SOURCE_DIR}/ext)
 
 ##------------------------------------------------------------------------------
@@ -106,7 +102,6 @@ endif (NOT LIBMEMCACHED_FOUND)
 ##
 
 list(APPEND SOURCES
-    ${CPP_SOURCE_DIR}/main.cpp
     ${CPP_SOURCE_DIR}/config.cpp
     ${CPP_SOURCE_DIR}/filter.cpp
   )
@@ -126,7 +121,7 @@ list(APPEND HEADERS
 ## Targets
 ##
 
-add_executable(radius-cacher ${SOURCES} ${HEADERS})
+add_library(radius-cacher-lib STATIC ${SOURCES} ${HEADERS})
 
 # Add make time constants
 if (DEFINED RC_BUFFER_SIZE)
@@ -135,21 +130,54 @@ if (DEFINED RC_BUFFER_SIZE)
 endif()
 
 # Link with FIND_PACKAGE
-target_link_libraries(radius-cacher PRIVATE ${LIBRARIES})
+target_link_libraries(radius-cacher-lib PUBLIC ${LIBRARIES})
 
 # Add manual includes
-target_include_directories(radius-cacher PRIVATE ${INCLUDE_DIRS})
+target_include_directories(radius-cacher-lib PUBLIC ${INCLUDE_DIRS})
+
+##------------------------------------------------------------------------------
+## Main
+##
+
+add_executable(radius-cacher ${CPP_SOURCE_DIR}/main.cpp)
+target_link_libraries(radius-cacher PRIVATE radius-cacher-lib)
 
 ##------------------------------------------------------------------------------
 ## Tests
 ##
 
-list(APPEND TESTS
-    ${CPP_TEST_DIR}/test_main.cpp
-    ${CPP_TEST_DIR}/test_config.cpp
-    ${CPP_TEST_DIR}/test_filter.cpp
-)
+option(RC_TEST "make tests" ON)
 
-enable_testing()
-add_executable(radius-cacher-tests ${TESTS})
-add_test(NAME radius-cahcer-test COMMAND radius-cacher-tests)
+if (RC_TEST)
+
+  set(CPP_TEST_DIR "test")
+
+  enable_testing()
+  include(GoogleTest)
+
+  # GTest
+  include("${EXT_DIR}/gtest/gtest.cmake")
+  list(APPEND TEST_LIBRARIES gtest)
+
+  # Test sources
+  list(APPEND TESTS
+      ${CPP_TEST_DIR}/main.cpp
+      ${CPP_TEST_DIR}/config.cpp
+      ${CPP_TEST_DIR}/filter.cpp
+      )
+
+  # Test executable
+  add_executable(radius-cacher-tests ${TESTS})
+  target_link_libraries(radius-cacher-tests PRIVATE radius-cacher-lib ${TEST_LIBRARIES})
+  target_include_directories(radius-cacher-tests PRIVATE ${TEST_INCLUDE_DIRS})
+
+  # CTest integration
+  gtest_discover_tests(radius-cacher-tests)
+
+  # Run tests before main build
+  add_custom_target(test-all COMMAND GTEST_COLOR=1 ctest -C $<CONFIGURATION> --output-on-failure)
+  add_dependencies(test-all radius-cacher-tests)
+  add_dependencies(radius-cacher test-all)
+
+endif()
+
