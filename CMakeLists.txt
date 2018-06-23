@@ -161,9 +161,9 @@ if (RC_TEST)
 
   # Test sources
   list(APPEND TESTS
-      ${CPP_TEST_DIR}/main.cpp
-      ${CPP_TEST_DIR}/config.cpp
-      ${CPP_TEST_DIR}/filter.cpp
+      ${CPP_TEST_DIR}/test_main.cpp
+      ${CPP_TEST_DIR}/test_config.cpp
+      ${CPP_TEST_DIR}/test_filter.cpp
       )
 
   # Test executable
@@ -174,8 +174,14 @@ if (RC_TEST)
   # CTest integration
   gtest_discover_tests(radius-cacher-tests)
 
+  # Copy the resources
+  file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/res/test)
+  file(GLOB RESOURCES ${CPP_TEST_DIR}/res/*)
+  file(COPY ${RESOURCES} DESTINATION ${CMAKE_BINARY_DIR}/res/test)
+
   # Run tests before main build
-  add_custom_target(test-all COMMAND GTEST_COLOR=1 ctest -C $<CONFIGURATION> --output-on-failure)
+  add_custom_target(test-all
+      COMMAND GTEST_COLOR=1 ctest -C $<CONFIGURATION> --output-on-failure)
   add_dependencies(test-all radius-cacher-tests)
   add_dependencies(radius-cacher test-all)
 
