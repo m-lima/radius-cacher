@@ -5,6 +5,7 @@
 #pragma once
 
 #include <string>
+#include <chrono>
 
 struct Config {
   struct Server {
@@ -14,7 +15,7 @@ struct Config {
     const std::string key;
     const std::string value;
     const std::string filterFile;
-    const unsigned short filterRefreshMinutes;
+    const std::chrono::minutes filterRefreshMinutes;
 
     static Server load(const std::string & path);
 
@@ -24,7 +25,7 @@ struct Config {
            std::string key,
            std::string value,
            std::string filterFile,
-           const unsigned short filterRefreshMinutes)
+           const std::chrono::minutes filterRefreshMinutes)
         : port{port},
           threadPoolSize{threadPoolSize},
           singleCore{singleCore},
@@ -37,7 +38,7 @@ struct Config {
   struct Cache {
     const std::string host;
     const unsigned short port;
-    const time_t ttl;
+    const std::time_t ttl;
     const bool noReply;
     const bool useBinary;
     const bool tcpKeepAlive;

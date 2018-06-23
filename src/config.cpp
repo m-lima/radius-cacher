@@ -92,13 +92,13 @@ Config::Server Config::Server::load(const std::string & path) {
                                      "(.+)"
                                      "[[:space:]]*$"};
 
-  unsigned short port = 1813;
-  unsigned short threadPoolSize = 1;
-  bool singleCore = true;
-  std::string key = "FRAMED_IP_ADDRESS";
-  std::string value = "USER_NAME";
-  std::string filterFile = "/etc/radius-cacher/filter.txt";
-  unsigned short filterRefreshMinutes = 12 * 60;
+  unsigned short port{1813};
+  unsigned short threadPoolSize{1};
+  bool singleCore{true};
+  std::string key{"FRAMED_IP_ADDRESS"};
+  std::string value{"USER_NAME"};
+  std::string filterFile{"/etc/radius-cacher/filter.txt"};
+  std::chrono::minutes filterRefreshMinutes{12 * 60};
 
   parse(path, LINE_REGEX, [&](const std::smatch & match) {
     switch (hash(match[1])) {
@@ -121,7 +121,7 @@ Config::Server Config::Server::load(const std::string & path) {
         filterFile = getString(match);
         break;
       case "FILTER_REFRESH_MINUTES"_h:
-        filterRefreshMinutes = getShort(match);
+        filterRefreshMinutes = std::chrono::minutes{getShort(match)};
         break;
     }
   });
@@ -146,7 +146,7 @@ Config::Server Config::Server::load(const std::string & path) {
   if (env) filterFile = getString("FILTER_FILE", env);
 
   env = std::getenv("RADIUS_FILTER_REFRESH_MINUTES");
-  if (env) filterRefreshMinutes = getShort("FILTER_REFRESH_MINUTES", env);
+  if (env) filterRefreshMinutes = std::chrono::minutes{getShort("FILTER_REFRESH_MINUTES", env)};
 
   LOG(logger::LOG,
       "config::Server::load: configuring server with\n"
@@ -163,7 +163,7 @@ Config::Server Config::Server::load(const std::string & path) {
       "KEY", key,
       "VALUE", value,
       "FILTER_FILE", filterFile,
-      "FILTER_REFRESH_MINUTES", filterRefreshMinutes
+      "FILTER_REFRESH_MINUTES", filterRefreshMinutes.count()
   );
 
   return {port, threadPoolSize, singleCore, key, value, filterFile, filterRefreshMinutes};
@@ -177,12 +177,12 @@ Config::Cache Config::Cache::load(const std::string & path) {
                                      "(.+)"
                                      "[[:space:]]*$"};
 
-  std::string host = "localhost";
-  unsigned short port = 11211;
-  time_t ttl = 5400;
-  bool noReply = true;
-  bool useBinary = true;
-  bool tcpKeepAlive = true;
+  std::string host{"localhost"};
+  unsigned short port{11211};
+  std::time_t ttl{5400};
+  bool noReply{true};
+  bool useBinary{true};
+  bool tcpKeepAlive{true};
 
   parse(path, LINE_REGEX, [&](const std::smatch & match) {
     switch (hash(match[1])) {

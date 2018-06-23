@@ -14,6 +14,8 @@ TEST(Config, get_short) {
 
   setenv("RADIUS_PORT", "abc", true);
   ASSERT_ANY_THROW(Config::Server::load(""));
+  setenv("RADIUS_PORT", "0", true);
+  ASSERT_ANY_THROW(Config::Server::load(""));
   setenv("RADIUS_PORT", "-2", true);
   ASSERT_ANY_THROW(Config::Server::load(""));
   setenv("RADIUS_PORT", "99999", true);
@@ -60,7 +62,7 @@ TEST(Config_Server, no_file_no_filter_loads_defaults) {
   ASSERT_EQ("FRAMED_IP_ADDRESS", server.key);
   ASSERT_EQ("USER_NAME", server.value);
   ASSERT_EQ("/etc/radius-cacher/filter.txt", server.filterFile);
-  ASSERT_EQ(720, server.filterRefreshMinutes);
+  ASSERT_EQ(std::chrono::minutes{720}, server.filterRefreshMinutes);
 }
 
 TEST(Config_Server, file_loads_properly) {
@@ -72,7 +74,7 @@ TEST(Config_Server, file_loads_properly) {
   ASSERT_EQ("yekyekyek", server.key);
   ASSERT_EQ("lavlavlav", server.value);
   ASSERT_EQ("my_lame_file", server.filterFile);
-  ASSERT_EQ(5588, server.filterRefreshMinutes);
+  ASSERT_EQ(std::chrono::minutes{5588}, server.filterRefreshMinutes);
 }
 
 TEST(Config_Server, env_vars_loads_properly) {
@@ -102,7 +104,7 @@ TEST(Config_Server, env_vars_loads_properly) {
   ASSERT_EQ("keykeykey", server.key);
   ASSERT_EQ("valvalval", server.value);
   ASSERT_EQ("my_super_file", server.filterFile);
-  ASSERT_EQ(8855, server.filterRefreshMinutes);
+  ASSERT_EQ(std::chrono::minutes{8855}, server.filterRefreshMinutes);
 }
 
 TEST(Config_Server, env_vars_overloads_file) {
@@ -124,7 +126,7 @@ TEST(Config_Server, env_vars_overloads_file) {
   ASSERT_EQ("yekyekyek", server.key);
   ASSERT_EQ("lavlavlav", server.value);
   ASSERT_EQ("my_super_file", server.filterFile);
-  ASSERT_EQ(5588, server.filterRefreshMinutes);
+  ASSERT_EQ(std::chrono::minutes{5588}, server.filterRefreshMinutes);
 }
 
 TEST(Config_Cache, test_no_file_no_env_loads_default) {
