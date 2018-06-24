@@ -54,13 +54,15 @@ int main(int argc, char * argv[]) {
 
     if (aVerboseLevel) {
       if (!logger::setVerboseLevel(aVerboseLevel)) {
-        LOG(logger::FATAL, "Invalid verbose level set: {:s}", aVerboseLevel);
+        LOG(logger::FATAL, "main: Invalid verbose level set: {:s}", aVerboseLevel);
         return -1;
       }
     } else {
-      LOG(logger::WARN, "No valid verbose level set in parameters or environment variables. Using default: LOG");
+      LOG(logger::WARN, "main: No valid verbose level set in parameters or environment variables. Using default: LOG");
     }
   }
+
+  LOG(logger::NONE, "main: Usind verbose level {:d}" , logger::verboseLevel);
 
   auto serverConfig = std::string{"/etc/radius-cacher/server.conf"};
   auto cacheConfig = std::string{"/etc/radius-cacher/cache.conf"};
