@@ -6,6 +6,7 @@
 
 #include <optional>
 
+#include "action.hpp"
 #include "radius.hpp"
 #include "logger.hpp"
 #include "filter.hpp"
@@ -62,7 +63,10 @@ public:
 
     // Read the header
     auto header = radius::Header::extract(begin, end);
-    if (header.code != radius::Header::REQUEST) return {}; // Type is not a request. Break away
+
+    // Break aways
+    if (header.code != radius::Header::REQUEST) return {}; // Type is not a request
+    if (header.length < 20 || header.length > bytesReceived || header.length > 4095) return {}; // Invalid as per spec
 
     auto packetEnd = begin + header.length;
     LOG(logger::DEBUG,
@@ -85,6 +89,12 @@ public:
     LOG(logger::DEBUG, "Start attribute iteration");
     while (begin < end && begin < packetEnd) {
       auto attribute = radius::Attribute::extract(begin, end);
+
+      if (attribute.length < 2) {
+        LOG(logger::INFO, "Invalid attribute size found. Discarding packet"); // Discard silently as per spec
+        return {};
+      }
+
       auto valueBegin = begin + radius::Attribute::SIZE;
 
       if (attribute.length > radius::Attribute::SIZE) {
