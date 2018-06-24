@@ -60,43 +60,35 @@ namespace {
   }
 }
 
-TEST(RadiusParser, empty_buffer) {
-  RadiusParser parser{"", std::chrono::minutes{0}};
+class Parser : public ::testing::Test {
+public:
+  RadiusParser parser{"res/test/filter.txt", std::chrono::minutes{0}};
+  std::array<std::uint8_t, 128> buffer{};
+};
 
-  std::array<std::uint8_t, 0> buffer{};
-  ASSERT_ANY_THROW(parser(64, buffer.begin(), buffer.end()));
+TEST_F(Parser, empty_buffer) {
+  std::array<std::uint8_t, 0> localBuffer{};
+  ASSERT_ANY_THROW(parser(64, localBuffer.begin(), localBuffer.end()));
 }
 
-TEST(RadiusParser, no_bytes_read) {
-  RadiusParser parser{"", std::chrono::minutes{0}};
-
-  std::array<std::uint8_t, 4> buffer{};
-  ASSERT_ANY_THROW(parser(0, buffer.begin(), buffer.end()));
+TEST_F(Parser, no_bytes_read) {
+  std::array<std::uint8_t, 4> localBuffer{};
+  ASSERT_ANY_THROW(parser(0, localBuffer.begin(), localBuffer.end()));
 }
 
-TEST(RadiusParser, invalid_bytes_read) {
-  RadiusParser parser{"", std::chrono::minutes{0}};
-
-  std::array<std::uint8_t, 4> buffer{};
-  ASSERT_ANY_THROW(parser(64, buffer.begin(), buffer.end()));
+TEST_F(Parser, invalid_bytes_read) {
+  std::array<std::uint8_t, 4> localBuffer{};
+  ASSERT_ANY_THROW(parser(64, localBuffer.begin(), localBuffer.end()));
 }
 
-TEST(RadiusParser, reject_packets_that_are_not_request) {
-  RadiusParser parser{"", std::chrono::minutes{0}};
-
-  std::array<std::uint8_t, 64> buffer{};
-
+TEST_F(Parser, reject_packets_that_are_not_request) {
   auto ptr = addHeader(buffer.begin(), radius::Header::RESPONSE);
   auto action = parser(closePacket(buffer.begin(), ptr), buffer.begin(), buffer.end());
 
   ASSERT_EQ(Action::DO_NOTHING, action.action);
 }
 
-TEST(RadiusParser, missing_value) {
-  RadiusParser parser{"", std::chrono::minutes{0}};
-
-  std::array<std::uint8_t, 128> buffer{};
-
+TEST_F(Parser, missing_value) {
   auto ptr = addHeader(buffer.begin(), radius::Header::REQUEST);
   ptr = addAttribute(ptr, radius::Attribute::ACCT_STATUS_TYPE, radius::StatusType::START);
   ptr = addAttribute(ptr, radius::Attribute::FRAMED_IP_ADDRESS, std::array<std::uint8_t, 4>{192, 168, 10, 22});
@@ -105,11 +97,7 @@ TEST(RadiusParser, missing_value) {
   ASSERT_EQ(Action::DO_NOTHING, action.action);
 }
 
-TEST(RadiusParser, missing_key) {
-  RadiusParser parser{"", std::chrono::minutes{0}};
-
-  std::array<std::uint8_t, 128> buffer{};
-
+TEST_F(Parser, missing_key) {
   auto ptr = addHeader(buffer.begin(), radius::Header::REQUEST);
   ptr = addAttribute(ptr, radius::Attribute::ACCT_STATUS_TYPE, radius::StatusType::START);
   ptr = addAttribute(ptr, radius::Attribute::USER_NAME, "987654321");
@@ -118,11 +106,7 @@ TEST(RadiusParser, missing_key) {
   ASSERT_EQ(Action::DO_NOTHING, action.action);
 }
 
-TEST(RadiusParser, start) {
-  RadiusParser parser{"", std::chrono::minutes{0}};
-
-  std::array<std::uint8_t, 128> buffer{};
-
+TEST_F(Parser, start) {
   auto ptr = addHeader(buffer.begin(), radius::Header::REQUEST);
   ptr = addAttribute(ptr, radius::Attribute::ACCT_STATUS_TYPE, radius::StatusType::START);
   ptr = addAttribute(ptr, radius::Attribute::FRAMED_IP_ADDRESS, std::array<std::uint8_t, 4>{192, 168, 10, 22});
@@ -134,11 +118,7 @@ TEST(RadiusParser, start) {
   ASSERT_EQ("987654321", *action.value);
 }
 
-TEST(RadiusParser, update) {
-  RadiusParser parser{"", std::chrono::minutes{0}};
-
-  std::array<std::uint8_t, 128> buffer{};
-
+TEST_F(Parser, update) {
   auto ptr = addHeader(buffer.begin(), radius::Header::REQUEST);
   ptr = addAttribute(ptr, radius::Attribute::ACCT_STATUS_TYPE, radius::StatusType::UPDATE);
   ptr = addAttribute(ptr, radius::Attribute::FRAMED_IP_ADDRESS, std::array<std::uint8_t, 4>{192, 168, 10, 22});
@@ -150,11 +130,7 @@ TEST(RadiusParser, update) {
   ASSERT_EQ("987654321", *action.value);
 }
 
-TEST(RadiusParser, deletion) {
-  RadiusParser parser{"", std::chrono::minutes{0}};
-
-  std::array<std::uint8_t, 128> buffer{};
-
+TEST_F(Parser, deletion) {
   auto ptr = addHeader(buffer.begin(), radius::Header::REQUEST);
   ptr = addAttribute(ptr, radius::Attribute::ACCT_STATUS_TYPE, radius::StatusType::STOP);
   ptr = addAttribute(ptr, radius::Attribute::FRAMED_IP_ADDRESS, std::array<std::uint8_t, 4>{192, 168, 10, 22});
@@ -166,11 +142,7 @@ TEST(RadiusParser, deletion) {
   ASSERT_EQ("987654321", *action.value);
 }
 
-TEST(RadiusParser, filtering) {
-  RadiusParser parser{"res/test/filter.txt", std::chrono::minutes{0}};
-
-  std::array<std::uint8_t, 128> buffer{};
-
+TEST_F(Parser, filtering) {
   auto ptr = addHeader(buffer.begin(), radius::Header::REQUEST);
   ptr = addAttribute(ptr, radius::Attribute::ACCT_STATUS_TYPE, radius::StatusType::START);
   ptr = addAttribute(ptr, radius::Attribute::USER_NAME, "1234567890123456");
@@ -182,11 +154,7 @@ TEST(RadiusParser, filtering) {
   ASSERT_FALSE(action.key);
 }
 
-TEST(RadiusParser, buffer_overflow) {
-  RadiusParser parser{"", std::chrono::minutes{0}};
-
-  std::array<std::uint8_t, 128> buffer{};
-
+TEST_F(Parser, buffer_overflow) {
   auto ptr = addHeader(buffer.begin(), radius::Header::REQUEST);
   ptr = addAttribute(ptr, radius::Attribute::ACCT_STATUS_TYPE, radius::StatusType::START);
   ptr = addAttribute(ptr, radius::Attribute::USER_NAME, "987654321");
@@ -196,11 +164,7 @@ TEST(RadiusParser, buffer_overflow) {
   ASSERT_EQ(Action::DO_NOTHING, action.action);
 }
 
-TEST(RadiusParser, corrupted_data) {
-  RadiusParser parser{"", std::chrono::minutes{0}};
-
-  std::array<std::uint8_t, 128> buffer{};
-
+TEST_F(Parser, corrupted_data) {
   auto ptr = addHeader(buffer.begin(), radius::Header::REQUEST);
   ptr = addAttribute(ptr, radius::Attribute::ACCT_STATUS_TYPE, radius::StatusType::START);
   ptr = addAttribute(ptr, radius::Attribute::USER_NAME, "987654321");
