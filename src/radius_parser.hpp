@@ -36,7 +36,7 @@ private:
     }
   }
 
-  const std::shared_ptr<Filter> mFilter;
+  const Filter mFilter;
 
 public:
 
@@ -46,18 +46,23 @@ public:
    * The parser must be built with the filter to avoid processing of packets before
    * the filter is ready
    */
-  explicit RadiusParser(std::string filterFilePath, std::chrono::minutes refreshMinutes)
-      : mFilter{std::make_shared<Filter>(std::move(filterFilePath), refreshMinutes)} {}
+  RadiusParser(std::string filterFilePath, std::chrono::minutes refreshMinutes)
+      : mFilter{std::move(filterFilePath), refreshMinutes} {}
 
-   /**
-    * Parse the incoming buffer for packet and call for action
-    *
-    * @tparam I the itarator for the buffer
-    * @param bytesReceived number of bytes received in current packet
-    * @param begin the start of the buffer
-    * @param end the end of the buffer
-    * @return the action to be taken by the server
-    */
+  ~RadiusParser() = default;
+  RadiusParser(const RadiusParser &) = delete;
+  RadiusParser(RadiusParser &&) = default;
+  RadiusParser & operator = (const RadiusParser &) = delete;
+
+  /**
+   * Parse the incoming buffer for packet and call for action
+   *
+   * @tparam I the itarator for the buffer
+   * @param bytesReceived number of bytes received in current packet
+   * @param begin the start of the buffer
+   * @param end the end of the buffer
+   * @return the action to be taken by the server
+   */
   template <typename I>
   Action operator()(std::size_t bytesReceived, I begin, I end) const {
 
@@ -91,7 +96,7 @@ public:
       auto attribute = radius::Attribute::extract(begin, end);
 
       if (attribute.length < 2) {
-        LOG(logger::INFO, "Invalid attribute size found. Discarding packet"); // Discard silently as per spec
+        LOG(logger::INFO, "Invalid attribute size found. Discarding packet");
         return {};
       }
 
@@ -124,21 +129,24 @@ public:
             LOG(logger::INFO, "Got action DO_NOTHING. Breaking away");
             return {}; // Free the buffer stack and callback ASAP
           }
+
           LOG(logger::DEBUG, "Got action {:s}", action == Action::STORE ? "STORE" : "REMOVE");
           break;
 
-        case radius::Attribute::FRAMED_IP_ADDRESS: {
-          auto ip = radius::ValueReader::getAddress(valueBegin, end);
-          key = std::make_optional(ip.ip);
+        case radius::Attribute::FRAMED_IP_ADDRESS:
+          key = std::make_optional(radius::ValueReader::getAddress(valueBegin, end).ip);
+
           LOG(logger::DEBUG, "Key = {:s}", *key);
-        }
           break;
 
         case radius::Attribute::USER_NAME:
           value = std::make_optional(radius::ValueReader::getString(valueBegin, end, begin + attribute.length));
-          if (mFilter->contains(std::stoull(*value))) {
-            return {Action::FILTER, std::move(key), std::move(value)}; // User opted-out; Free the buffer stack and callback ASAP
+
+          if (mFilter.contains(std::stoull(*value))) {
+            // User opted-out; Free the buffer stack and callback ASAP
+            return {Action::FILTER, std::move(key), std::move(value)};
           }
+
           LOG(logger::DEBUG, "Value = {:s}", *value);
           break;
       }

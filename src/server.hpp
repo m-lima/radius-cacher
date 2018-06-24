@@ -100,7 +100,7 @@ private:
       socket.async_receive_from(
           boost::asio::buffer(callbackCurrent->mBuffer, Server::BUFFER_SIZE),
           callbackCurrent->mEndpoint,
-          [&socket, callbackCurrent, callbackBegin, callbackEnd, parser]
+          [&socket, callbackCurrent, callbackBegin, callbackEnd, &parser]
               (const boost::system::error_code & error, std::size_t bytesReceived) {
 
             if (error && error != boost::asio::error::message_size) {
