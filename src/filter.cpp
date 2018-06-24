@@ -56,8 +56,8 @@ void Filter::reload() {
     return;
   }
 
-  std::size_t other = 1 - mCurrent;
-  mFilters[other].clear();
+  auto index = 1 - mCurrent;
+  mFilters[index].clear();
 
   std::string buffer;
   try {
@@ -65,7 +65,7 @@ void Filter::reload() {
       std::smatch match;
       if (std::regex_search(buffer, match, REGEX)) {
         try {
-          mFilters[other].emplace_back(std::stoull(match[1]));
+          mFilters[index].emplace_back(std::stoull(match[1]));
         } catch (const std::exception & ex) {
           LOG(logger::WARN, "Filter::reload: failed to parse value {:s}: {}", match[1], ex.what());
         }
@@ -75,11 +75,12 @@ void Filter::reload() {
     LOG(logger::WARN, "Filter::reload: exception while reloading filter: {}", ex.what());
   }
 
-  std::sort(mFilters[other].begin(), mFilters[other].end());
-  mCurrent = other;
+  std::sort(mFilters[index].begin(), mFilters[index].end());
 
-  LOG(logger::LOG, "Filter::reload: Enabled new filter with {:d} entries", mFilters[mCurrent].size());
-  for (const auto value : mFilters[mCurrent]) {
+  mCurrent = index;
+
+  LOG(logger::LOG, "Filter::reload: Enabled new filter with {:d} entries", mFilters[index].size());
+  for (const auto value : mFilters[index]) {
     LOG(logger::INFO, "Filter::reload: Filtering {:d}", value);
   }
 }

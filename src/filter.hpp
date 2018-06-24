@@ -16,24 +16,8 @@ private:
   // For testing
   friend class FilterTester;
 
-  struct CurrentVector {
-    bool flag = false;
-
-    operator std::size_t () const {
-      return flag ? 1 : 0;
-    }
-
-    std::size_t operator ! () const {
-      return flag ? 0 : 1;
-    }
-
-    void swap() {
-      flag = !flag;
-    }
-  };
-
-  std::size_t mCurrent = 0;
-  std::array<std::vector<std::uint64_t>, 2> mFilters;
+  std::size_t mCurrent{0};
+  std::array<std::vector<std::uint64_t>, 2> mFilters{};
   const std::string mFilePath;
   const std::chrono::seconds mRefreshSeconds;
 
