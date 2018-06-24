@@ -158,6 +158,7 @@ if (RC_TEST)
   # GTest
   include("${EXT_DIR}/gtest/gtest.cmake")
   list(APPEND TEST_LIBRARIES gtest)
+  list(APPEND TEST_INCLUDE_DIRS ${GTEST_INCLUDE_DIRS})
 
   # Test sources
   list(APPEND TESTS

@@ -4,12 +4,11 @@
  !  :Important
  .  :Minor
 
-[ ]! Add tests
 [ ]! Authenticator check
 [ ]  Avoid libmemcached
 [ ]  Clang-tidy
-[ ]. Reduce repeated code in Config
 [ ]. Use syslogger
+[X]! Add test framework
 [X]! Read configuration from env vars
 [X]! Traffic filter
 [X]! Debug logs are taking computing power
@@ -23,3 +22,4 @@
 [O]  Map AVP number to name
 [@]! Allow filter manager to load all files in a folder and delete them
 [@]  CMake options
+[@]. Reduce repeated code in Config

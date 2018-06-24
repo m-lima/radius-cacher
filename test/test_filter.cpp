@@ -29,13 +29,13 @@ struct FilterTester {
 
 TEST(Filter, no_file_loads_empty) {
   FilterTester tester("");
-  ASSERT_EQ(0, tester.getFilterSizer());
+  ASSERT_EQ(0u, tester.getFilterSizer());
 }
 
 TEST(Filter, filter_loads_properly) {
   FilterTester tester("res/test/filter.txt");
 
-  ASSERT_EQ(4, tester.getFilterSizer());
+  ASSERT_EQ(4u, tester.getFilterSizer());
   ASSERT_TRUE(tester.filter.contains(123));
   ASSERT_TRUE(tester.filter.contains(1234567890123456));
   ASSERT_TRUE(tester.filter.contains(567));
@@ -45,7 +45,7 @@ TEST(Filter, filter_loads_properly) {
 TEST(Filter, filter_reloads_properly) {
   FilterTester tester("res/test/filter.txt");
 
-  ASSERT_EQ(4, tester.getFilterSizer());
+  ASSERT_EQ(4u, tester.getFilterSizer());
   ASSERT_TRUE(tester.filter.contains(123));
   ASSERT_TRUE(tester.filter.contains(1234567890123456));
   ASSERT_TRUE(tester.filter.contains(567));
@@ -54,7 +54,7 @@ TEST(Filter, filter_reloads_properly) {
   tester.setFilePath("res/test/filter2.txt");
   tester.reload();
 
-  ASSERT_EQ(4, tester.getFilterSizer());
+  ASSERT_EQ(4u, tester.getFilterSizer());
   ASSERT_TRUE(tester.filter.contains(9123));
   ASSERT_TRUE(tester.filter.contains(91234567890123456));
   ASSERT_TRUE(tester.filter.contains(9567));
@@ -64,7 +64,7 @@ TEST(Filter, filter_reloads_properly) {
 TEST(Filter, filter_reload_failure_should_not_clear_filter) {
   FilterTester tester("res/test/filter.txt");
 
-  ASSERT_EQ(4, tester.getFilterSizer());
+  ASSERT_EQ(4u, tester.getFilterSizer());
   ASSERT_TRUE(tester.filter.contains(123));
   ASSERT_TRUE(tester.filter.contains(1234567890123456));
   ASSERT_TRUE(tester.filter.contains(567));
@@ -73,7 +73,7 @@ TEST(Filter, filter_reload_failure_should_not_clear_filter) {
   tester.setFilePath("");
   tester.reload();
 
-  ASSERT_EQ(4, tester.getFilterSizer());
+  ASSERT_EQ(4u, tester.getFilterSizer());
   ASSERT_TRUE(tester.filter.contains(123));
   ASSERT_TRUE(tester.filter.contains(1234567890123456));
   ASSERT_TRUE(tester.filter.contains(567));
@@ -84,7 +84,7 @@ TEST(Filter, filter_reloader_works_properly) {
   FilterTester tester("res/test/filter.txt", 1);
   tester.setFilePath("res/test/filter2.txt");
 
-  ASSERT_EQ(4, tester.getFilterSizer());
+  ASSERT_EQ(4u, tester.getFilterSizer());
   ASSERT_TRUE(tester.filter.contains(123));
   ASSERT_TRUE(tester.filter.contains(1234567890123456));
   ASSERT_TRUE(tester.filter.contains(567));
@@ -92,7 +92,7 @@ TEST(Filter, filter_reloader_works_properly) {
 
   sleep(2);
 
-  ASSERT_EQ(4, tester.getFilterSizer());
+  ASSERT_EQ(4u, tester.getFilterSizer());
   ASSERT_TRUE(tester.filter.contains(9123));
   ASSERT_TRUE(tester.filter.contains(91234567890123456));
   ASSERT_TRUE(tester.filter.contains(9567));
