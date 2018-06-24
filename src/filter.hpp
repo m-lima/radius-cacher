@@ -32,10 +32,9 @@ private:
     }
   };
 
+  std::size_t mCurrent = 0;
   std::array<std::vector<std::uint64_t>, 2> mFilters;
-  CurrentVector mCurrent;
   const std::string mFilePath;
-
   const std::chrono::seconds mRefreshSeconds;
 
   void reload();

@@ -24,8 +24,9 @@ Filter::Filter(std::string path, std::chrono::seconds refreshSeconds)
 }
 
 bool Filter::contains(std::uint64_t value) const {
-  return std::binary_search(mFilters[mCurrent].cbegin(),
-                            mFilters[mCurrent].cend(),
+  auto index = mCurrent;
+  return std::binary_search(mFilters[index].cbegin(),
+                            mFilters[index].cend(),
                             value);
 }
 
@@ -55,7 +56,8 @@ void Filter::reload() {
     return;
   }
 
-  mFilters[!mCurrent].clear();
+  std::size_t other = 1 - mCurrent;
+  mFilters[other].clear();
 
   std::string buffer;
   try {
@@ -63,7 +65,7 @@ void Filter::reload() {
       std::smatch match;
       if (std::regex_search(buffer, match, REGEX)) {
         try {
-          mFilters[!mCurrent].emplace_back(std::stoull(match[1]));
+          mFilters[other].emplace_back(std::stoull(match[1]));
         } catch (const std::exception & ex) {
           LOG(logger::WARN, "Filter::reload: failed to parse value {:s}: {}", match[1], ex.what());
         }
@@ -73,8 +75,8 @@ void Filter::reload() {
     LOG(logger::WARN, "Filter::reload: exception while reloading filter: {}", ex.what());
   }
 
-  std::sort(mFilters[!mCurrent].begin(), mFilters[!mCurrent].end());
-  mCurrent.swap();
+  std::sort(mFilters[other].begin(), mFilters[other].end());
+  mCurrent = other;
 
   LOG(logger::LOG, "Filter::reload: Enabled new filter with {:d} entries", mFilters[mCurrent].size());
   for (const auto value : mFilters[mCurrent]) {
