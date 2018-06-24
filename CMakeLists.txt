@@ -164,6 +164,7 @@ if (RC_TEST)
       ${CPP_TEST_DIR}/test_main.cpp
       ${CPP_TEST_DIR}/test_config.cpp
       ${CPP_TEST_DIR}/test_filter.cpp
+      ${CPP_TEST_DIR}/test_radius_parser.cpp
       )
 
   # Test executable
