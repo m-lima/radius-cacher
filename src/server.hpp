@@ -64,15 +64,15 @@ private:
 
       switch (action.action) {
         case Action::STORE:
-          LOG(logger::INFO, "Server::Executor: Storing {:s} with {:s}", *(action.key), *(action.value));
-          mCache.set(*(action.key), *(action.value));
+          LOG(logger::INFO, "Server::Executor: Storing {:s} with {:s}", *action.key, *action.value);
+          mCache.set(*action.key, *action.value);
           break;
         case Action::REMOVE:
-          LOG(logger::INFO, "Server::Executor: Removing {:s} with {:s}", *(action.key), *(action.value));
-          mCache.remove(*(action.key));
+          LOG(logger::INFO, "Server::Executor: Removing {:s} with {:s}", *action.key, *action.value);
+          mCache.remove(*action.key);
           break;
         case Action::FILTER:
-          LOG(logger::INFO, "Server::Executor: Filtering {:s}", *(action.value));
+          LOG(logger::INFO, "Server::Executor: Filtering {:s}", *action.value);
           break;
       }
     }
