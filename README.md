@@ -29,7 +29,7 @@ To have a faster build time, it is suggested to install boost and libmemcached a
 $ cd <repository_folder>
 $ mkdir build
 $ cd build
-$ cmake -DCMAKE_BUILD_TYPE=Release ..
+$ cmake -DCMAKE_BUILD_TYPE=Release [-DRC_TEST=<ON|OFF>] ..
 $ make
 ```
 
