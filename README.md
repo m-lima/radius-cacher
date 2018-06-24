@@ -29,11 +29,11 @@ To have a faster build time, it is suggested to install boost and libmemcached a
 $ cd <repository_folder>
 $ mkdir build
 $ cd build
-$ cmake -DCMAKE_BUILD_TYPE=Release [-DRC_VERBOSE_LEVEL=<LEVEL>] [-DRC_BUFFER_SIZE=<BUFFER_SIZE>] ..
+$ cmake -DCMAKE_BUILD_TYPE=Release ..
 $ make
 ```
 
 ## Running
 ```bash
-$ ./radius-cacher [-s SERVER_CONFIG_FILE] [-c CACHE_CONFIG_FILE]
+$ ./radius-cacher [-s SERVER_CONFIG_FILE] [-c CACHE_CONFIG_FILE] [-v VERBOSE_LEVEL]
 ```
