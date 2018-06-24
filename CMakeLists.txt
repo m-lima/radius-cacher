@@ -182,7 +182,7 @@ if (RC_TEST)
 
   # Run tests before main build
   add_custom_target(test-all
-      COMMAND GTEST_COLOR=1 ctest -C $<CONFIGURATION> --output-on-failure -j 4)
+      COMMAND GTEST_COLOR=1 ctest -C $<CONFIGURATION> -j 4)
   add_dependencies(test-all radius-cacher-tests)
   add_dependencies(radius-cacher test-all)
 
